@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Leave Management Home</title>
+  <meta name="description" content="Description of your site goes here">
+  <meta name="keywords" content="keyword1, keyword2, keyword3">
+  <link href="css/style.css" rel="stylesheet" type="text/css">
+  <script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
+  <script type="text/javascript" src="js/jquery.cookie.js"></script>
+  <script type="text/javascript" src="js/log_check.js"></script>
+  
+  <!--Calendar Area-->
+<link href='css/fullcalendar.css' rel='stylesheet' />
+
+<script src='js/lib/moment.min.js'></script>
+<script src='js/lib/fullcalendar.min.js'></script>
+  <!--Calendar Area-->
+  
+
+  
+  <script type="text/javascript">
+  $(window).load(function(){
+
+	if($.cookie("loged")){
+		
+		$(".login").append("<ul><li>Staff-Id:&nbsp;&nbsp;"+$.cookie("loged").split("/")[0]+"</li><li>Staff-Name:&nbsp;&nbsp;"+$.cookie("loged").split("/")[2]+"</li><li>Staff-Type:&nbsp;&nbsp;"+$.cookie("loged").split("/")[1]+"</li><li><button class=\"logout\"><a>Logout</a></button><button class=\"edit_profile\"><a href=\"leave_admin_personal.html\">Edit Profile</a></button></li></ul>");
+		if($.cookie("loged").split("//")[1]!="")
+		$("#logo").attr("src",$.cookie("loged").split("//")[1]);
+	else $("#logo").attr("src","phps/images/photos/user_icon.png");
+	}
+	else window.location.assign("leavehome.html");
+
+	$(".logout").click(function(){
+		$.removeCookie("loged");
+		window.location.assign("leavehome.html");
+	});
+	
+	$.ajax({
+		url:"phps/get_holidays.php",
+		data:{},
+		type:"POST",
+		dataType:"json",
+		success:function(result){
+			var events=[];
+			for(var k=0;k<result[0].length;k++){
+				result[3][k]=result[3][k].split("-")[0]+"-"+result[3][k].split("-")[1]+"-"+(parseInt(result[3][k].split("-")[2])+1);
+				events[k]={id:result[0][k],title:result[1][k],start:result[2][k],end:result[3][k]};
+			}
+			
+			var d=new Date();
+			//var date=d.getFullYear()+"-"+(((d.getMonth()+1)<10 ? "0" : "")+d.getMonth()+1)+"-"+d.getDate();
+			var month = d.getMonth()+1;
+			var day = d.getDate();
+
+			var date = d.getFullYear() + '-' + (month<10 ? '0' : '') + month + '-' + (day<10 ? '0' : '') + day;
+			$('#calendar').fullCalendar({
+				header: {
+					left: 'prev,next today',
+					center: 'title',
+					right: 'month'
+				},
+				defaultDate: date,
+				selectable: true,
+				selectHelper: true,
+				select: function(start, end) {
+					var check = start.format('YYYY-MM-DD');
+					//var today=date.format('YYYY-MM-DD');
+				
+					if(check>=date){
+						var title = prompt('Holiday:');
+						var eventData;
+						if (title) {
+							eventData = {
+								id: title+" "+start.format("YYYY-MM-DD"),
+								title: title,
+								start: start,
+								end: end
+							};
+							$('#calendar').fullCalendar('renderEvent', eventData, true); // stick? = true
+							
+							//var start = start.format("YYYY-MM-DD");
+							
+							$.ajax({
+								url:"phps/set_holidays.php",
+								data:{id:title+" "+start.format("YYYY-MM-DD"),holiday:title,s_date:start.format("YYYY-MM-DD"),e_date:end.format("YYYY-MM-DD"),flag:"1"},
+								type:"POST",
+								dataType:"json",
+								success:function(result){
+									alert(result);
+								},
+								error:function(xhr){
+									alert(xhr.status);
+								}
+							});
+						}
+					}
+					else alert("Select proper date");
+					$('#calendar').fullCalendar('unselect');
+				},
+				editable: true,
+		
+				eventLimit: true, // allow "more" link when too many events
+				events: events,
+				eventClick: function(event, element) {
+					if(confirm("Do you want to change the Holiday Name")){
+						var my_title=prompt('Holiday:',event.title);
+
+						if(my_title!=null){
+							event.title=my_title;
+							var ev=event.id;
+							
+							$.ajax({
+								url:"phps/set_holidays.php",
+								data:{id:ev,holiday:event.title,s_date:"",e_date:"",flag:"3"},
+								type:"POST",
+								dataType:"json",
+								success:function(result){
+									alert(result);
+								},
+								error:function(xhr){
+									alert(xhr.status);
+								}
+							});
+							$('#calendar').fullCalendar('updateEvent', event);
+						}
+							
+					}
+				},
+				eventDrop:function(event,delta,revertFunc){
+					var start=event.start.format("YYYY-MM-DD");
+					var d=new Date();
+					var date=d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+					if(start>=date){
+						if(confirm("Are you sure to change this holiday???")){	
+							var ev=event.id;
+							$.ajax({
+								url:"phps/set_holidays.php",
+								data:{id:ev,holiday:event.title,s_date:event.start.format("YYYY-MM-DD"),e_date:event.end.format("YYYY-MM-DD"),flag:"2"},
+								type:"POST",
+								dataType:"json",
+								success:function(result){
+									alert(result);
+								},
+								error:function(xhr){
+									alert(xhr.status);
+								}
+							});
+						}
+						else revertFunc();
+					}
+					else{
+						alert("The day has been passed...");
+						revertFunc();
+					}
+				},
+				eventResize:function(event,delta,revertFunc){
+					if(confirm("Are you sure to alter this holiday???")){
+						var ev=event.id;
+						$.ajax({
+							url:"phps/set_holidays.php",
+							data:{id:ev,holiday:"",s_date:event.start.format("YYYY-MM-DD"),e_date:event.end.format("YYYY-MM-DD"),flag:"5"},
+							type:"POST",
+							dataType:"json",
+							success:function(result){
+								alert(result);
+							},
+							error:function(xhr){
+								alert(xhr.status);
+							}
+						});
+					}
+					else revertFunc();
+				},
+				eventRender:function(event,element){
+					element.bind('mousedown',function(e){
+						if(e.which==3){
+							if(confirm("Are you sure to delete this holiday???")){
+								var ev=event.id;
+							
+								$.ajax({
+									url:"phps/set_holidays.php",
+									data:{id:ev,holiday:event.title,s_date:"",e_date:"",flag:"4"},
+									type:"POST",
+									dataType:"json",
+									success:function(result){
+										$("#calendar").fullCalendar('removeEvents',event.id);
+										alert(result);
+									},
+									error:function(xhr){
+										alert(xhr.status);
+									}
+								});
+								
+							}
+						}
+						
+					});
+				}
+			});
+		},
+		error:function(result){
+			alert("Problem in Connection");
+		}
+	});
+	
+	$("#delete_holidays").click(function(){
+		if($("#holi_from").val() && $("#holi_to").val()){
+		if(confirm("Are You Sure to Delete the Holidays Within These Days?")){
+			if(confirm("You cannot retrieve back those holidays!!!")){
+				var d=new Date();
+				
+				$.ajax({
+					url:"phps/set_holidays.php",
+					data:{id:"",holiday:"",s_date:$("#holi_from").val(),e_date:$("#holi_to").val(),flag:d.getFullYear()},
+					type:"POST",
+					dataType:"json",
+					success:function(result){
+						alert(result);
+						location.reload()
+						
+					},
+					error:function(xhr){
+						alert(xhr.status);
+					}
+				});
+			}
+		}
+		}
+		else alert("Please Select a Range of Days");
+	});
+	
+  });
+  </script>
+  
+  <style type="text/css">
+  	
+		.fc-event-time{
+ 		  display : none;
+		}
+  </style>
+</head>
+<body>
+	<div class="main-out">
+		<div class="main">
+			<div class="page">
+				<div class="top">
+					<div class="header">
+						<div class="header-top">
+							<h1><span>SKCET Leave Management System</span></h1>
+							<p><img id="logo" width="100" height="80" style="mar"/></p>
+						</div>
+						<div class="topmenu">
+                            <ul>
+                              <li><a href="leave_admin_home.html">Home</a></li>
+                               <li><a href="leave_admin_personal.html">My Profile</a></li>
+                              <li><a href="leave_admin_staff.html">Staff Entry</a></li>
+                              <li><a href="#">Holiday Entry</a></li>
+                              <li><a href="leave_admin_leave.html">Leave Entry</a></li>
+                              <li><a href="leave_admin_report.html">Leave Report</a></li>
+                              <li><a href="leave_admin_about.html">About</a></li>
+                            </ul>
+						</div>
+						<!--<div class="header-img">
+							<h2>Slogan goes here</h2>
+						</div>-->
+					</div>
+					<div class="content">
+						<div class="content-left" style="min-height:400px;">
+                        	<center><h1>Holidays</h1></center>
+                        	<div id='calendar' style="margin-top: 10px;"></div>
+							<!--<div class="row1">
+								<!--<div class="img"><img src="images/img1.jpg" alt="" height="101" width="157"></div>
+								<div class="welcome">
+                                       <h1 class="title">Welcome to <span>SKCET Leave Management System</span></h1>
+                                       
+                                       <p><strong>Leave Management Portal is the website developed only for SKCET staffs.</strong><br><p>&nbsp;</p>
+                                       SKCET Leave Management Portal is highly aimed to reduce the paper work for the staffs to apply leave.
+                                       Staffs can apply leave directly from this Leave Management System. The applied leave will be automatically 									   forwarded to the higher officials for the leave approval. Staffs can also allocate other staffs for their 										classes. </p>
+								</div>
+							</div>-->
+							<!--<div class="row2">
+								<div class="section1">
+                                       <h2 class="subtitle">What&#8217;s New</h2>
+                                       <p><strong>Lorem Ipsum is simply dummy text of the<br>
+                                       printing and typesetting industry.</strong><br>
+                                       Lorem Ipsum has been the industry's standard<br>
+                                       dummy text ever since the 1500s, when an<br>
+                                       unknown printer took a galley of type and</p>
+                                       <p>&nbsp;</p>
+                                       <p>&nbsp;</p>
+                                       <p><a href="#" class="more">read more</a></p>
+								</div>
+								<div class="section2">
+                            	    <h2 class="subtitle">Resources</h2>
+                                    <p><strong>Lorem Ipsum is simply dummy text of the printing and
+                                    typesetting industry.</strong><br>
+                                    Lorem Ipsum has been the industry's standard dummy text ever since the
+                                    1500s, when an unknown printer took a galley of type and scrambled it
+                                    to make a type specimen book. It has survived not only five centuries,
+                                     but</p>
+                                     <p>&nbsp;</p>
+                                    <p><a href="#" class="more">read more</a></p>
+								</div>
+							</div>-->
+						</div>
+						<div class="content-right login">
+                               <center><h2>Welcome</h2></center>
+
+						</div>
+                        <div class="right-content" style="float: right; margin-top: 10px">
+                        	<fieldset style="width: 53%;background-color: #d6d6d6;"><legend style="margin-top: 200px;">Delete Holidays</legend>
+                            	<table>
+                                	<tr><th>From</th><td><input type="date" id="holi_from" style="width: 154px;" /></td></tr>
+                                    <tr><th>To</th><td><input type="date" id="holi_to" style="width: 154px;" /></td></tr>
+                                    <tr><td colspan="2"><center><button id="delete_holidays">Delete</button></center></td></tr>
+                                </table>
+                            </fieldset>
+                        	<!--<h4><a style="color: #1da5ea;" id="delete_holidays">Delete Previous Year Holidays</a></h4>-->
+                        </div>
+                        
+                         <div class="right-content" style="float: right; margin-top: 10px;">
+                        	<fieldset style="margin-right:20px; width: 88%; background-color: #d6d6d6;"><legend>Note</legend>
+                            	<strong>Date Click</strong><br/>
+                                Create New Holiday<br/><br/>
+                                <strong>Left Click Holiday </strong><br/>
+                                Change Holiday Name<br/><br/>
+                                <strong>Right Click Holiday</strong><br/>
+                                Delete Holiday<br/><br/>
+                                <strong>Drag Holiday</strong><br/>
+                                Change Holiday Dates<br/><br/>
+                                <strong>Extend/Shrink Holiday</strong><br/>
+                                Extend / Shrink Holiday Dates<br/><br/>
+                            </fieldset>
+                        	<!--<h4><a style="color: #1da5ea;" id="delete_holidays">Delete Previous Year Holidays</a></h4>-->
+                        </div>
+					</div>
+				</div>
+				<div class="bottom">
+                       <ul>
+                          <li style="border-left: medium none;"><a href="leave_admin_home.html">Home</a></li>
+                          <li><a href="leave_admin_personal.html">My &nbsp;Profile</a></li>
+                          <li><a href="leave_admin_staff.html">Staff&nbsp;Entry</a></li>
+                          <li><a href="leave_admin_holiday.html">Holiday&nbsp;Entry</a></li>
+                          <li><a href="leave_admin_leave.html">Leave&nbsp;Entry</a></li>
+                          <li><a href="leave_admin_report.html">Leave&nbsp;Report</a></li>
+                          <li><a href="leave_admin_about.html">About</a></li>
+                        </ul>
+                        
+                        <!--DO NOT Remove The Footer Links-->
+                        <p>&copy; Designed by <a>Arunkumar.B(BE CSE (2012 Batch) SKCET</a></p>
+                        
+                        <img src="images/footnote.gif" class="copyright" alt="HTML Templates"></a>
+				</div>
+<!--DO NOT Remove The Footer Links-->
+			</div>
+		</div>
+	</div>
+	
+</body>
+</html>

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Leave Management Home</title>
+  <meta name="description" content="Description of your site goes here">
+  <meta name="keywords" content="keyword1, keyword2, keyword3">
+  <link href="css/style.css" rel="stylesheet" type="text/css">
+  <script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
+  <script type="text/javascript" src="js/jquery.cookie.js"></script>
+  <script type="text/javascript">
+  $(window).load(function(){
+
+	if($.cookie("loged")){
+		$(".login").append("<ul><li>Staff-Id:&nbsp;&nbsp;"+$.cookie("loged").split("/")[0]+"</li><li>Staff-Name:&nbsp;&nbsp;"+$.cookie("loged").split("/")[2]+"</li><li>Staff-Type:&nbsp;&nbsp;"+$.cookie("loged").split("/")[1]+"</li><li><button class=\"logout\"><a>Logout</a></button><button class=\"edit_profile\"><a href=\"leavepersonal.html\">Edit Profile</a></button></li></ul>");
+		
+		if($.cookie("loged").split("//")[1]!="")
+		$("#logo").attr("src",$.cookie("loged").split("//")[1]);
+	else $("#logo").attr("src","phps/images/photos/user_icon.png");
+	}
+	else window.location.assign("leavehome.html");
+
+	$(".logout").click(function(){
+		$.removeCookie("loged");
+		window.location.assign("leavehome.html");
+		
+	});
+	
+	var d=new Date();
+	var date=d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+	var lop=0;
+	
+	$.ajax({
+		url:"phps/remaining.php",
+		data:{user:$.cookie("loged").split("/")[0],type:$.cookie("loged").split("/")[1],today:date},
+		type:"POST",
+		dataType:"json",
+		success:function(result){
+			for(var i=0;i<result[0].length;i++){
+				if(parseInt(result[1][i][0].split("/")[0])>0)
+					$("#remaining_leave").append("<tr><td>"+result[0][i]+"</td><td><center><strong>"+result[1][i][0].split("/")[0]+"</strong></center></td></tr>");
+				else{
+					$("#remaining_leave").append("<tr><td>"+result[0][i]+"</td><td>0</td></tr>");
+					lop=lop-(result[1][i][0].split("/")[0]);
+				}
+			}
+
+			$(".lop").append("<center><strong>"+lop+"</center></strong>");
+			
+			$.ajax({
+				url:"phps/get_cancel_leaves.php",
+				data:{id:$.cookie("loged").split("/")[0],today:date},
+				type:"POST",
+				dataType:"json",
+				success:function(result){
+										
+					$("#cancel_status").append("<center><h2 style=\"margin-top: 20px;\">Cancelled Leave Status</h2>")
+					if(result[4].length>0){
+						for(var i=0;i<result[4].length;i++){
+							
+								$("#cancel_status").append("<div class=\"row1\" style=\"margin-top: 10px;\"><table border=\"1\" style=\"width:100%; text-align: center;\"><tr><th>Leave Type</th><th>Cancelled Dates</th><th>Cancellation Purpose</th><th>HOD Status</th><th>Admin Status</th><th>Principal Status</th></tr><tr><td>"+result[6][i]+"</td><td>"+result[4][i]+"</td><td>"+result[5][i]+"</td><td>"+result[8][i].split(",")[0]+"</td><td>"+result[8][i].split(",")[1]+"</td><td>"+result[8][i].split(",")[2]+"</td></tr></table></div>");					
+									
+						}
+					}
+					
+					else  $("#cancel_status").append("<div class=\"row1\"><table border=\"1\" style=\"width:100%; text-align: center;margin-top: 20px;\"><tr><td><h2>You Have No Approvals...</h2></td></tr></table></row1>");
+				},
+				error:function(xhr){
+					alert("Problem in Connection");
+				}
+			});
+
+		},
+		error:function(result){
+			alert("Problem in Connection");
+		}
+	});
+	
+	$("#submit_dates").click(function(){
+		if($("#from").val() && $("#to").val()){
+			$.ajax({
+				url:"phps/get_leaves_cancellation.php",
+				data:{id:$.cookie("loged").split("/")[0],from:$("#from").val(),to:$("#to").val()},
+				type:"POST",
+				dataType:"json",
+				success:function(result){
+					$("#cancel_leaves").html("<h2 style=\"margin-top: 20px;\">Leaves Available For Cancellation</h2>");
+							
+					$("#cancel_leaves").append("<table border=\"1\" class=\"use_this\" style=\"margin-top: 5px; width: 90%; text-align: center;\"><tr><th>S.No</th><th>Leave Type</th><th> Leaves On</th><th>Purpose</th><th></th></tr></table>");
+					
+					for(var i=0;i<result[0].length;i++){
+						if(result[1].length){
+							
+							
+							$(".use_this").append("<tr><td>"+(i+1)+"</td><td>"+result[1][i]+"</td><td>"+result[0][i]+"</td><td>"+result[2][i]+"</td><td><button class=\"cancel_this\" reff=\""+result[0][i]+"//"+result[1][i]+"//"+result[2][i]+"//"+result[3][i]+"\">Select</button></td></tr>");
+
+							
+						}
+						else{
+							$("#cancel_leaves").html("<h1>No Leaves Available For Cancellation For The Given Period</h1>");
+						}
+					}
+				},
+				error:function(xhr){
+					alert("Problem in Connection");
+				}
+			});
+		}
+		else alert("Please Provide All Details...");
+	});
+	
+	$(document).on("click",".cancel_this",function(){
+		var bb = $('#popup').blurbox({blur: 10, animateBlur: true, bgColor: 'rgba(255,255,0,0.2)'})
+		bb.show();
+		
+		$("#leave_details").html("<tr><td>Leave Type</td><td>"+$(this).attr("reff").split("//")[2]+"</td></tr>");
+		
+		
+		for(var i=0;i<$(this).attr("reff").split("//")[0].split(",").length;i++){
+			$("#leave_details").append("<tr><td>Date &nbsp;&nbsp;"+(i+1)+"</td><td style=\"width : 60%;\"><input type=\"checkbox\" name=\"selected_dates\" class=\"sel\" value=\""+$(this).attr("reff").split("//")[0].split(",")[i]+"\" />&nbsp;&nbsp;"+$(this).attr("reff").split("//")[0].split(",")[i]+"&nbsp;&nbsp;<input type=\"radio\" class=\"selected_sessions\" name=\""+$(this).attr("reff").split("//")[0].split(",")[i]+"\" value=\""+$(this).attr("reff").split("//")[0].split(",")[i]+"_fn\" id=\""+$(this).attr("reff").split("//")[0].split(",")[i]+"_fn\" disabled  /> FN&nbsp;<input type=\"radio\" class=\"selected_sessions\" name=\""+$(this).attr("reff").split("//")[0].split(",")[i]+"\" value=\""+$(this).attr("reff").split("//")[0].split(",")[i]+"_an\" id=\""+$(this).attr("reff").split("//")[0].split(",")[i]+"_an\" disabled  /> AN&nbsp;<input type=\"radio\" class=\"selected_sessions\" name=\""+$(this).attr("reff").split("//")[0].split(",")[i]+"\" value=\""+$(this).attr("reff").split("//")[0].split(",")[i]+"_fd\" id=\""+$(this).attr("reff").split("//")[0].split(",")[i]+"_fd\" disabled selected=selected/> Full Day&nbsp;</td></tr>");
+		}
+		
+		$("#leave_details").append("<tr><td>Purpose For Cancelling this Leave</td><td><textarea id=\"purpose\"></textarea></td></tr>");
+		$("#leave_details").append("<tr><td colspan=\"2\"><button id=\"cancel\" ref=\""+$(this).attr("reff")+"\">Cancel</button></td></tr>");
+	});
+	
+	$(document).on("click",".sel",function(){
+		if($(this).is(":checked")){
+			($("#"+this.value+"_fn,#"+this.value+"_an,#"+this.value+"_fd").prop("disabled",false));
+		}
+		
+		else $("#"+this.value+"_fn,#"+this.value+"_an,#"+this.value+"_fd").prop("disabled",true);
+	});
+		
+	$(document).on("click","#cancel",function(){
+		if(confirm("Are You Sure To Cancel This Leave???")){
+			var selected="";
+			$(".selected_sessions:checked").each(function(){
+				selected+=this.value+",";
+			});
+			
+			if(selected!=""){
+				var date=$(this).attr("ref").split("//")[0];
+				var purpose=$(this).attr("ref").split("//")[1];
+				var type=$(this).attr("ref").split("//")[2];
+				var c_p=$("#purpose").val();
+				
+				$.ajax({
+					url:"phps/proceed_cancelling.php",
+					data:{user:$.cookie("loged").split("/")[0],from_date:date,purpose_for:purpose,leave_type:type,selects:selected,can_pur:c_p},
+					type:"POST",
+					dataType:"json",
+					success:function(result){
+						alert("Leave Submitted For Cancellation Successfully.");
+						alert("Check Frequently For The Status");
+						location.reload();
+					},
+					error:function(xhr){
+						alert(xhr.status);
+					}
+				});
+			}
+			else alert("You Haven't Selected A Date or a Session!!!")
+		}
+	});
+  });
+  </script>
+</head>
+<body>
+	<div class="main-out">
+		<div class="main">
+			<div class="page">
+				<div class="top">
+					<div class="header">
+						<div class="header-top">
+							<h1><span>SKCET Leave Management System</span></h1>
+							<p><img id="logo" width="100" height="80" style="mar"/></p>
+						</div>
+						<div class="topmenu">
+                            <ul>
+                              <li><a href="leave_staff_home.html">Home</a></li>
+                               <li><a href="leavepersonal.html">My Profile</a></li>
+                              <li><a href="leave_staff_apply.html">Apply Leave</a></li>
+                              <li><a href="leave_staff_status.html">Leave Status</a></li>
+                              <li><a href="leave_staff_approve.html">Approvals</a></li>
+                              <li><a href="#">Cancel Leave</a></li>
+                              <li><a href="leaveholidays.html">Holiday Wizard</a></li>
+                               <li><a href="leave_staff_about.html">About</a></li>
+                            </ul>
+						</div>
+						<!--<div class="header-img">
+							<h2>Slogan goes here</h2>
+						</div>-->
+					</div>
+					<div class="content">
+						<div class="content-left" style="min-height:400px;">
+                        	<center>
+                            	<h2>Cancel Leaves</h2>
+                                
+                                <fieldset style="width: 80%;"><legend>Select Dates</legend>
+                                	<table style="width: 90%;"><tr><td>From &nbsp;&nbsp;&nbsp; <input type="date" id="from" style="width: 130px;" /> </td><td>To &nbsp;&nbsp;&nbsp; <input type="date" id="to" style="width:130px;" /></td><td><button id="submit_dates" style="margin-top: 10px;">Submit</button></td></tr>
+                                    
+                                    </table>
+                                </fieldset>
+                                
+                                <div id="cancel_leaves">
+                                	
+                                </div>
+                                
+                                <hr/>
+                                
+                                <div id="cancel_status">
+                                
+                                </div>
+                            </center>
+                            
+                            <div id="popup" style="width: 500px; display: none; height: 300px;"> 
+                            	<center><h3 style="margin-bottom: 5px;">Cancel Leave Dates</h3></center>
+								<table id="leave_details" border="1" style="width:100%; border-collapse:collapse; text-align:center; margin-bottom: 10px;">
+                                        
+                                </table>
+                            </div>
+                                        
+							<!--<div class="row2">
+								<div class="section1">
+                                       <h2 class="subtitle">What&#8217;s New</h2>
+                                       <p><strong>Lorem Ipsum is simply dummy text of the<br>
+                                       printing and typesetting industry.</strong><br>
+                                       Lorem Ipsum has been the industry's standard<br>
+                                       dummy text ever since the 1500s, when an<br>
+                                       unknown printer took a galley of type and</p>
+                                       <p>&nbsp;</p>
+                                       <p>&nbsp;</p>
+                                       <p><a href="#" class="more">read more</a></p>
+								</div>
+								<div class="section2">
+                            	    <h2 class="subtitle">Resources</h2>
+                                    <p><strong>Lorem Ipsum is simply dummy text of the printing and
+                                    typesetting industry.</strong><br>
+                                    Lorem Ipsum has been the industry's standard dummy text ever since the
+                                    1500s, when an unknown printer took a galley of type and scrambled it
+                                    to make a type specimen book. It has survived not only five centuries,
+                                     but</p>
+                                     <p>&nbsp;</p>
+                                    <p><a href="#" class="more">read more</a></p>
+								</div>
+							</div>-->
+						</div>
+						<div class="content-right login">
+                               <center><h2>Welcome</h2></center>
+                               		<!--<ul>
+                               		<li><p>User Name&nbsp;&nbsp; <input type="text" placeholder="User Name" id="leave_user"/></p></li>
+                                    <li><p style="margin-top: 10px;">Password&nbsp;&nbsp; <input type="password" placeholder="Password" id="leave_pass"/></p></li>
+                                    <li><p style="margin-top: 10px; margin-bottom: 10px"><button id="log">Login</button><button id="forgot">Forgot Password</button></p></li>
+                                    </ul>-->
+                                <!--<ul>
+                                  <li style="border-top: medium none;"><a href="#">Link 1</a></li>
+                                  <li><a href="#">Link 2</a></li>
+                                  <li><a href="#">Link 3</a></li>
+                                  <li><a href="#">Link 4</a></li>
+                                  
+
+                                </ul>
+                                <p>&nbsp;</p>
+                                <p>&nbsp;</p>
+                                <p>&nbsp;</p>-->
+						</div>
+                        
+                        <div class="content-right" style="margin-top: 10px;">
+                        	<center><h3 style="margin-top: 5px;">Remaining Leave</h3></center>
+                            
+                            <table id="remaining_leave">
+                            
+                            </table>
+                        </div>
+                        
+                        <div class="content-right lop" style="margin-top: 10px;">
+                        	<center><h3 style="margin-top: 5px; margin-bottom: 10px;">LOP Taken</h3></center>
+                            
+
+                        </div>
+					</div>
+				</div>
+				<div class="bottom">
+                        <ul>
+                          <li style="border-left: medium none;"><a href="leave_staff_home.html">Home</a></li>
+                          <li><a href="leavepersonal.html">My &nbsp;Profile</a></li>
+                          <li><a href="leave_staff_apply.html">Apply&nbsp;Leave</a></li>
+                          <li><a href="leave_staff_status.html">Leave&nbsp;Status</a></li>
+                          <li><a href="leave_staff_approve.html">Leave&nbsp;Approvals</a></li>
+                          <li><a href="leave_staff_cancel.html">Cancel&nbsp;Leave</a></li>
+                          <li><a href="leaveholidays.html">Holidays</a></li>
+                          <li><a href="leave_staff_about.html">About</a></li>
+                        </ul>
+                        
+                        <!--DO NOT Remove The Footer Links-->
+                        <p>&copy; Designed by <a>Arunkumar.B(BE CSE (2012 Batch) SKCET</a></p>
+                        
+                        <img src="images/footnote.gif" class="copyright" alt="HTML Templates"></a>
+				</div>
+<!--DO NOT Remove The Footer Links-->
+			</div>
+		</div>
+	</div>
+<script src="js/blurbox.js"></script>	
+</body>
+</html>

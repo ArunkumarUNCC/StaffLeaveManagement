@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Leave Management Home</title>
+  <meta name="description" content="Description of your site goes here">
+  <meta name="keywords" content="keyword1, keyword2, keyword3">
+  <link href="css/style.css" rel="stylesheet" type="text/css">
+
+  <script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
+  <script type="text/javascript" src="js/jquery.cookie.js"></script>
+  <script>
+/*setTimeout(function() {
+	var bb = $('#popup').blurbox({blur: 10, animateBlur: true, bgColor: 'rgba(255,255,0,0.2)'})
+	bb.show();
+},500);*/
+</script>
+
+  <script type="text/javascript">
+  $(window).load(function(){
+  	var d=new Date();
+	var date=d.getFullYear()+"-"+d.getMonth()+"-"+d.getDate();
+	var lop=0;
+  	$("#leave_report").hide();
+	$("#approve_leave,#toPopup,#princi_only,#cancel_leave,#princi_menu,#hod_menu,#alternate_staff").hide();
+
+	if($.cookie("loged")){
+		$(".login").append("<ul><li>Staff-Id:&nbsp;&nbsp;"+$.cookie("loged").split("/")[0]+"</li><li>Staff-Name:&nbsp;&nbsp;"+$.cookie("loged").split("/")[2]+"</li><li>Staff-Type:&nbsp;&nbsp;"+$.cookie("loged").split("/")[1]+"</li><li><button class=\"logout\"><a>Logout</a></button><button class=\"edit_profile\"><a href=\"leavepersonal.html\">Edit Profile</a></button></li></ul>");
+		
+		if($.cookie("loged").split("//")[1]!="")
+		$("#logo").attr("src",$.cookie("loged").split("//")[1]);
+	else $("#logo").attr("src","phps/images/photos/user_icon.png");
+	}
+	else window.location.assign("leavehome.html");
+
+	$(".logout").click(function(){
+		$.removeCookie("loged");
+		window.location.assign("leavehome.html");
+		
+	});
+	
+	if($.cookie("loged").split("/")[1]!="Principal"){
+		$.ajax({
+			url:"phps/remaining.php",
+			data:{user:$.cookie("loged").split("/")[0],type:$.cookie("loged").split("/")[1],today:date},
+			type:"POST",
+			dataType:"json",
+			success:function(result){
+				
+				for(var i=0;i<result[0].length;i++){
+					if(parseInt(result[1][i].split("/")[0])>0)
+						$("#remaining_leave").append("<tr><td>"+result[0][i]+"</td><td><center><strong>"+result[1][i].split("/")[0]+"</strong></center></td></tr>");
+					else{
+						$("#remaining_leave").append("<tr><td>"+result[0][i]+"</td><td>0</td></tr>");
+						lop=lop-(result[1][i].split("/")[0]);
+					}
+				}
+	
+				$(".lop").append("<center><strong>"+lop+"</center></strong>");
+	
+			},
+			error:function(result){
+				alert("Problem in Connection");
+			}
+		});
+	}
+	
+	if($.cookie("loged").split("/")[1]!="Principal" && $.cookie("loged").split("/")[1]!="HOD")
+		$("#alternate_staff").show();
+	
+	if($.cookie("loged").split("/")[1]!="Principal"){
+		$.ajax({
+			url:"phps/get_approvals.php",
+			data:{id:$.cookie("loged").split("/")[0],type:$.cookie("loged").split("/")[1]},
+			type:"POST",
+			dataType:"json",
+			success:function(result){
+				$("#edit_table").html("<tr><th>Staff Name</th><th>Date</th><th>Class</th><th>Subject</th><th>Period</th><th></th></tr>")
+				if(result[1].length==0)
+					$("#edit_table").html("<tr><td colspan=\"100%\" style=\"text-align:center;\"><h1>No Requests For You At This Time</h1></td></tr>");
+				
+				for(var i=0;i<result[1].length;i++){
+					$("#edit_table").append("<tr><td>"+result[0][i][0]+"</td><td>"+result[2][i]+"</td><td>"+result[3][i]+"</td><td>"+result[5][i]+"</td><td style=\"width: 50px;\">"+result[4][i]+"</td><td><button reff=\""+result[1][i]+"/"+result[2][i]+"/"+result[3][i]+"/"+result[4][i]+"/"+result[5][i]+"\" class=\"approve\"><b>Approve</b></button></td></tr>");
+				}
+			},
+			error:function(result){
+				alert("Problem in Connection");
+			}
+		});
+	}
+	
+	if($.cookie("loged").split("/")[1]=="HOD"){
+		$("#change_head").html("Request From Staff For Alternate Classes");
+		$("#approve_leave,#hod_menu").show();
+		$("#alternate_staff").hide();
+		
+		$.ajax({
+			url:"phps/get_hod_approvals.php",
+			data:{id:$.cookie("loged").split("/")[0]},
+			type:"POST",
+			dataType:"json",
+			success:function(result){
+				if(result[1].length==0)
+					$("#edit_table2").html("<tr><td colspan=\"100%\" style=\"text-align:center;\"><h1>No Requests For You At This Time</h1></td></tr>");
+					for(var i=0;i<result[1].length;i++){
+						if(result[2][i].split(",").length!=1)
+							$("#edit_table2").append("<tr><td><img src=\""+result[13][i]+"\" height=\"80\" width=\"80\" /><br/>"+result[1][i]+"</td><td>("+result[2][i].split(",")[0]+"&nbsp;&nbsp;"+result[3][i].split(",")[0]+")-("+result[2][i].split(",")[result[2][i].split(",").length-1]+"&nbsp;&nbsp;"+result[3][i].split(",")[1]+")</td><td>"+result[8][i]+"</td><td>"+result[7][i]+"</td><td>"+result[9][i]+"</td><td><button class=\"view_details\" reff=\""+result[0][i]+"//"+result[1][i]+"//"+result[2][i]+"//"+result[4][i]+"//"+result[5][i]+"//"+result[6][i]+"//"+result[7][i]+"//"+result[10][i]+"//"+result[11][i]+"//"+result[12][i]+"\">View Details</button></td></tr>");
+							
+						else $("#edit_table2").append("<tr><td><img src=\""+result[13][i]+"\" height=\"80\" width=\"80\" /><br/>"+result[1][i]+"</td><td>("+result[2][i].split(",")[0]+"&nbsp;&nbsp;"+result[3][i].split(",")[0]+")</td><td>"+result[8][i]+"</td><td>"+result[7][i]+"</td><td>"+result[9][i]+"</td><td><button class=\"view_details\" reff=\""+result[0][i]+"//"+result[1][i]+"//"+result[2][i]+"//"+result[4][i]+"//"+result[5][i]+"//"+result[6][i]+"//"+result[7][i]+"//"+result[10][i]+"//"+result[11][i]+"//"+result[12][i]+"\">View Details</button></td></tr>");
+						
+					}
+					
+					$.ajax({
+						url:"phps/get_hod_cancelled.php",
+						data:{id:$.cookie("loged").split("/")[0]},
+						type:"POST",
+						dataType:"json",
+						success:function(result){
+						
+						},
+						error:function(xhr){
+							alert("Problem in Connection");						
+						}
+					});
+			},
+			error:function(result){
+				alert("Problem in Connection");
+			}
+		});
+	}
+	
+	if($.cookie("loged").split("/")[1]=="Principal"){
+		//$("#change_head").html("Request From Staff For Alternate Classes");
+		$("#approve_leave,#princi_only,#princi_menu").show();
+		$("#leave_report").show();
+		$("#alternate_staff,#apply_leave,#leave_status,#cancel_leave1").hide();
+		$(".content-right:not('.login')").hide();
+		
+		$.ajax({
+			url:"phps/get_principal_approvals.php",
+			data:{dept:"All"},
+			type:"POST",
+			dataType:"json",
+			success:function(result){
+				
+				if(result[1].length==0)
+					$("#edit_table2").html("<tr><td colspan=\"100%\" style=\"text-align:center;\"><h1>No Requests For You At This Time</h1></td></tr>");
+				else{
+					$("#edit_table2 tr:gt(0)").remove()
+					$("#edit_table2").append("<tr><th>Staff Name</th><th>Department</th><th>Requested Leave</th><th>Days</th><th>Leave Type</th><th>Purpose</th><th></th></tr>");
+					for(var i=0;i<result[1].length;i++){
+						if(result[2][i].split(",").length!=1)
+							$("#edit_table2").append("<tr><td><img src=\""+result[14][i]+"\" height=\"80\" width=\"80\" />"+result[1][i]+"</td><td>"+result[13][i]+"</td><td>("+result[2][i].split(",")[0]+"&nbsp;&nbsp;"+result[3][i].split(",")[0]+")-("+result[2][i].split(",")[result[2][i].split(",").length-1]+"&nbsp;&nbsp;"+result[3][i].split(",")[1]+")</td><td>"+result[8][i]+"</td><td>"+result[7][i]+"</td><td>"+result[9][i]+"</td><td><button class=\"view_details\" reff=\""+result[0][i]+"//"+result[1][i]+"//"+result[2][i]+"//"+result[4][i]+"//"+result[5][i]+"//"+result[6][i]+"//"+result[7][i]+"//"+result[10][i]+"//"+result[11][i]+"//"+result[12][i]+"\">View</button></td></tr>");
+							
+						else $("#edit_table2").append("<tr><td><img src=\""+result[14][i]+"\" height=\"80\" width=\"80\" />"+result[1][i]+"</td><td>"+result[13][i]+"</td><td>("+result[2][i].split(",")[0]+"&nbsp;&nbsp;"+result[3][i].split(",")[0]+")</td><td>"+result[8][i]+"</td><td>"+result[7][i]+"</td><td>"+result[9][i]+"</td><td><button class=\"view_details\" reff=\""+result[0][i]+"//"+result[1][i]+"//"+result[2][i]+"//"+result[4][i]+"//"+result[5][i]+"//"+result[6][i]+"//"+result[7][i]+"//"+result[10][i]+"//"+result[11][i]+"//"+result[12][i]+"\">View</button></td></tr>");
+						
+					}
+				}
+				
+				$.ajax({
+					url:"phps/get_cancelled.php",
+					data:{},
+					type:"POST",
+					dataType:"json",
+					success:function(result){
+						if(result[0].length>0){
+							$("#edit_table3").html("<tr><th>S.No</th><th>Staff Name</th><th>Department</th><th>Leave From/On</th><th>Leave To</th><th>Leave Type</th><th>Purpose</th><th></th><th></th></tr>");
+							for(var i=0;i<result[0].length;i++){
+								$("#edit_table3").append("<tr><td>"+(i+1)+"</td><td>"+result[1][i]+"</td><td>"+result[2][i]+"</td><td>"+result[3][i]+"</td><td>"+result[4][i]+"</td><td>"+result[6][i]+"</td><td>"+result[5][i]+"</td><td><button id=\"cancel_approve\" reff=\""+result[0][i]+"//"+result[3][i]+"//"+result[4][i]+"//"+result[6][i]+"\">Approve</button></td><td><button id=\"cancel_deny\" reff=\""+result[0][i]+"//"+result[3][i]+"//"+result[4][i]+"//"+result[6][i]+"\">Deny</button></td></tr>");
+							}
+						}
+						else $("#edit_table3").html("<tr><td colspan=\"100%\">No Requests Available For You At This Time</td></tr>");
+					},
+					error:function(xhr){
+						alert(xhr.status);
+					}
+				});
+			},
+			error:function(result){
+				alert("Problem in Connection");
+			}
+		});
+	}
+	
+	$("#subject").click(function(){
+		$("#approval_heading").html("Subject Approvals");
+		$(this).addClass("main-selection");
+		$("#hod_new,#hod_cancel").removeClass("main-selection");
+		$("#alternate_staff").show();
+		$("#approve_leave,#cancel_leave").hide();
+	});
+	
+	$("#hod_new").click(function(){
+		$("#approval_heading").html("Leave Approvals");
+		$(this).addClass("main-selection");
+		$("#subject,#hod_cancel").removeClass("main-selection");
+		$("#approve_leave").show();
+		$("#alternate_staff,#cancel_leave").hide();
+	});
+	
+	$("#hod_cancel").click(function(){
+		$("#approval_heading").html("Cancel Approvals");
+		$(this).addClass("main-selection");
+		$("#hod_new,#subject").removeClass("main-selection");
+		$("#cancel_leave").show();
+		$("#alternate_staff,#approve_leave").hide();
+	});
+	
+	$(document).on("click",".view_details",function(){
+	
+		var bb = $('#popup').blurbox({blur: 10, animateBlur: true, bgColor: 'rgba(255,255,0,0.2)'})
+		bb.show();
+	
+		var staff=[];
+		$("#leaves_rem tr:gt(0)").remove();
+		
+		$.ajax({
+			url:"phps/remaining.php",
+			data:{user:$(this).attr("reff").split("//")[0],type:$.cookie("loged").split("/")[1],today:date},
+			type:"POST",
+			dataType:"json",
+			success:function(result){
+				lop=0;
+				for(var i=0;i<result[0].length;i++){
+					if(parseInt(result[1][i][0].split("/")[0])>0)
+						$("#leaves_rem").append("<tr><td>"+result[0][i]+"</td><td><center><strong>"+result[1][i][0].split("/")[0]+"</strong></center></td></tr>");
+					else{
+						$("#leaves_rem").append("<tr><td>"+result[0][i]+"</td><td><center><strong>0</strong></center></td></tr>");
+						lop=lop-(result[1][i][0].split("/")[0]);
+					}
+				}
+	
+				$("#leaves_rem").append("<tr><td>LOPs</td><td><center><strong>"+lop+"</strong></center></td></tr>");
+	
+			},
+			error:function(result){
+				alert("Problem in Connection");
+			}
+		});
+				
+		if($(this).attr("reff").split("//")[4]!=""){	
+			
+			$("#staff_details").html("<tr><th>S.No</th><th>Staff Name</th><th>Date</th><th>Class</th><th>Subject</th><th>Period</th><th>Status</th></tr>");
+			
+			for(var i=0;i<$(this).attr("reff").split("//")[3].split(",").length;i++){
+				
+				
+				if($(this).attr("reff").split("//")[9].split(",")[i].split("-")[0]!="")
+					
+					$("#staff_details").append("<tr><td>"+(i+1)+"</td><td>"+$(this).attr("reff").split("//")[9].split(",")[i].split("-")[0]+"</td><td>"+$(this).attr("reff").split("//")[8].split(",")[i]+"</td><td>"+$(this).attr("reff").split("//")[4].split(",")[i]+"</td><td>"+$(this).attr("reff").split("//")[7].split(",")[i]+"</td><td>"+$(this).attr("reff").split("//")[5].split("|")[i]+"</td><td>Approved</td></tr>");
+				
+				$("#hod_approve").attr("var",$(this).attr("reff"));
+				$("#hod_deny").attr("var",$(this).attr("reff"));
+				
+				
+			}
+		
+			if($.cookie("loged").split("/")[1]=="Principal"){
+				$("#staff_details").append("<tr><td>"+(i+1)+"</td><td colspan=\"5\">HOD</td><td>Approved</td></tr>");
+			
+				//$("#hod_approve").attr("id","princi_approve");
+				//$("#hod_deny").attr("id","princi_deny");
+			}
+			
+		}
+		
+		else{
+			$("#staff_details").html("<tr><td colspan=\"100%\"><h3>No Alternation Classes</h3></td></tr>");
+			
+			for(var i=0;i<$(this).attr("reff").split("//")[3].split(",").length;i++){
+				if($(this).attr("reff").split("//")[9].split(",")[i].split("-")[0]!="")
+					$("#staff_details").append("<tr><td>"+(i+1)+"</td><td>"+$(this).attr("reff").split("//")[9].split(",")[i].split("-")[0]+"</td><td>"+$(this).attr("reff").split("//")[8].split(",")[i]+"</td><td>"+$(this).attr("reff").split("//")[4].split(",")[i]+"</td><td>"+$(this).attr("reff").split("//")[7].split(",")[i]+"</td><td>"+$(this).attr("reff").split("//")[5].split("|")[i]+"</td><td>Approved</td></tr>");
+				$("#hod_approve").attr("var",$(this).attr("reff"));
+				$("#hod_deny").attr("var",$(this).attr("reff"));
+				//alert($("#hod_approve").attr("var"));
+				
+			}
+		
+			if($.cookie("loged").split("/")[1]=="Principal"){
+				$("#staff_details").append("<tr><td>"+(i+1)+"</td><td colspan=\"5\">HOD</td><td>Approved</td></tr>");
+
+			}
+		}
+		
+		
+	});
+	
+	$("#hod_approve,#hod_deny").click(function(){
+		
+		if($.cookie("loged").split("/")[1]=="HOD"){
+			
+			$.ajax({
+				url:"phps/hod_decision.php",
+				data:{id:$(this).attr("var").split("//")[0],name:$(this).attr("var").split("//")[1],date:$(this).attr("var").split("//")[2],staff:$(this).attr("var").split("//")[3],class:$(this).attr("var").split("//")[4],period:$(this).attr("var").split("//")[5],status:$(this).html(),type:$(this).attr("var").split("//")[6]},
+				type:"POST",
+				dataType:"json",
+				success:function(result){
+					alert(result);
+				},
+				error:function(xhr){
+					alert("You Have Approved "+$(this).attr("var").split("//")[1]+"'s Leave");
+				}
+			});
+		}
+		
+		else if($.cookie("loged").split("/")[1]=="Principal"){
+			$.ajax({
+				url:"phps/princi_decision.php",
+				data:{id:$(this).attr("var").split("//")[0],name:$(this).attr("var").split("//")[1],date:$(this).attr("var").split("//")[2],staff:$(this).attr("var").split("//")[3],class:$(this).attr("var").split("//")[4],period:$(this).attr("var").split("//")[5],status:$(this).html(),type:$(this).attr("var").split("//")[6]},
+				type:"POST",
+				dataType:"json",
+				success:function(result){
+					alert("You Have Approved a Leave");
+				},
+				error:function(xhr){
+					alert("You Have Approved a Leave");
+				
+				}
+			});		
+		}
+	
+		var bb = $('#popup').blurbox({blur: 0, animateBlur: false, bgColor: 'rgba(255,255,0,0.2)'});
+		bb.hide();
+		location.reload();
+	});
+	
+	$(document).on("click",".approve",function(){
+		if(confirm("Are You Sure???")){
+			$(this).closest("tr").remove();
+			if($("#edit_table tr").length==1)
+				$("#edit_table").html("<tr><td colspan=\"100%\" style=\"text-align:center;\"><h1>No Requests For You At This Time</h1></td></tr>");
+			
+			$.ajax({
+				url:"phps/accept_requests.php",
+				data:{id:$.cookie("loged").split("/")[0],accept_to:$(this).attr("reff").split("/")[0],date:$(this).attr("reff").split("/")[1],class:$(this).attr("reff").split("/")[2],period:$(this).attr("reff").split("/")[3]},
+				type:"POST",
+				dataType:"json",
+				success:function(result){
+					alert(result);
+					location.reload();
+				},
+				error:function(xhr){
+					alert(xhr.status);
+				}
+			});
+		}
+	});
+	
+	$("#use_dept").change(function(){
+		$.ajax({
+			url:"phps/get_principal_approvals.php",
+			data:{dept:$("#use_dept").val()},
+			type:"POST",
+			dataType:"json",
+			success:function(result){
+				$("#edit_table2 tr:gt(0)").remove();
+				if(result[1].length==0)
+					$("#edit_table2").append("<tr><td colspan=\"100%\" style=\"text-align:center;\"><h1>No Requests For You At This Time</h1></td></tr>");
+				else{
+					$("#edit_table2 tr:gt(0)").remove();
+					$("#edit_table2").append("<tr><th>Staff Name</th><th>Department</th><th>Requested Leave</th><th>Days</th><th>Leave Type</th><th>Purpose</th><th></th></tr>");
+					for(var i=0;i<result[1].length;i++){
+						if(result[2][i].split(",").length!=1)
+							$("#edit_table2").append("<tr><td>"+result[1][i]+"</td><td>"+result[13][i]+"</td><td>("+result[2][i].split(",")[0]+"&nbsp;&nbsp;"+result[3][i].split(",")[0]+")-("+result[2][i].split(",")[result[2][i].split(",").length-1]+"&nbsp;&nbsp;"+result[3][i].split(",")[1]+")</td><td>"+result[8][i]+"</td><td>"+result[7][i]+"</td><td>"+result[9][i]+"</td><td><button class=\"view_details\" reff=\""+result[0][i]+"//"+result[1][i]+"//"+result[2][i]+"//"+result[4][i]+"//"+result[5][i]+"//"+result[6][i]+"//"+result[7][i]+"//"+result[10][i]+"//"+result[11][i]+"//"+result[12][i]+"\">View</button></td></tr>");
+							
+						else $("#edit_table2").append("<tr><td>"+result[1][i]+"</td><td>"+result[13][i]+"</td><td>("+result[2][i].split(",")[0]+"&nbsp;&nbsp;"+result[3][i].split(",")[0]+")</td><td>"+result[8][i]+"</td><td>"+result[7][i]+"</td><td>"+result[9][i]+"</td><td><button class=\"view_details\" reff=\""+result[0][i]+"//"+result[1][i]+"//"+result[2][i]+"//"+result[4][i]+"//"+result[5][i]+"//"+result[6][i]+"//"+result[7][i]+"//"+result[10][i]+"//"+result[11][i]+"//"+result[12][i]+"\">View</button></td></tr>");
+						
+					}
+				}
+			},
+			error:function(result){
+				alert("Problem in Connection");
+			}
+		});
+	});
+	
+	$("#cancel").click(function(){
+		$(this).css("border-bottom","2px solid #1da5ee;");
+		$("#new").css("border-bottom","");
+		$("#approve_leave").hide();
+		$("#cancel_leave").show();
+	});
+	
+	$("#new").click(function(){
+		$(this).css("border-bottom","2px solid #1da5ee;");
+		$("#cancel").css("border-bottom","");
+		$("#approve_leave").show();
+		$("#cancel_leave").hide();
+	});
+	
+	$(document).on("click","#cancel_approve,#cancel_deny",function(){
+		$.ajax({
+			url:"phps/update_cancel_status.php",
+			data:{id:$(this).attr("reff").split("//")[0],from:$(this).attr("reff").split("//")[1],to:$(this).attr("reff").split("//")[2],type:$(this).attr("reff").split("//")[3],status:$(this).html()},
+			type:"POST",
+			dataType:"json",
+			success:function(result){
+				alert(result)
+				//location.reload()
+			},
+			error:function(xhr){
+				alert(xhr.status);
+			}
+		});
+	});
+  });
+  </script>
+  
+  <style>
+	.main-selection{
+		border-bottom: 2px solid #1da5ee;
+	}
+  </style>
+  
+</head>
+<body>
+	<div class="main-out">
+		<div class="main">
+			<div class="page">
+				<div class="top">
+					<div class="header">
+						<div class="header-top">
+							<h1><span>SKCET Leave Management System</span></h1>
+							<p><img id="logo" width="100" height="80" style="mar"/></p>
+						</div>
+						<div class="topmenu">
+                            <ul>
+                              <li><a href="leave_staff_home.html">Home</a></li>
+                               <li><a href="leavepersonal.html">My Profile</a></li>
+                              <li id="apply_leave"><a href="leave_staff_apply.html" >Apply Leave</a></li>
+                              <li id="leave_status"><a href="leave_staff_status.html" >Leave Status</a></li>
+                              <li><a href="#">Approvals</a></li>
+                              <li id="cancel_leave1"><a href="leave_staff_cancel.html" >Cancel Leave</a></li>
+                              <li><a href="leaveholidays.html">Holiday Wizard</a></li>
+                              <li id="leave_report"><a href="leavereport.html">Report</a></li>
+                               <li><a href="leave_staff_about.html">About</a></li>
+                            </ul>
+						</div>
+						<!--<div class="header-img">
+							<h2>Slogan goes here</h2>
+						</div>-->
+					</div>
+					<div class="content">
+						<div class="content-left" style="min-height:400px;">
+                        <div id="princi_menu">
+                        <span style="margin-left: 20px; margin-right: 20px; font-size:16px"><strong><a id="new" style="border-bottom: 2px solid #1da5ee;">Leave Approvals</a></strong></span>|<span style="margin-left: 20px; margin-right: 20px; font-size:16px;"><strong><a id="cancel">Cancel Approvals</a></strong></span></span></div>
+                        <div id="hod_menu">
+                        <span style="margin-left: 20px; margin-right: 20px; font-size:16px"><strong><a id="hod_new" class="main-selection">Leave Approvals</a></strong></span>|<span style="margin-left: 20px; margin-right: 20px; font-size:16px;"><strong><a id="subject">Subject Approvals</a></strong></span>|<span style="margin-left: 20px; margin-right: 20px; font-size:16px;"><strong><a id="hod_cancel">Cancel Approvals</a></strong></span></span></div>
+							<center><h2 style="margin-top: 10px;" id="approval_heading"><span>Leave Approvals</span></h2>
+                            	<fieldset style="width: 95%;" id="approve_leave"><legend>Requests From Staff For Leave</legend>
+                                	<table id="edit_table2" style="width:100%; font-size: 16px; text-align:center; border-collapse:collapse" border="1" cellspacing="10">
+                                    	<tr id="princi_only"><td colspan="100%">Department&nbsp;&nbsp;&nbsp;<select id="use_dept" style="width: 100px;">
+                                        	<option>All</option>
+                                            <script>
+												$.ajax({
+													url:"phps/get_dept.php",
+													data:{},
+													type:"POST",
+													dataType:"json",
+													success:function(result){
+														for(var i=0;i<result.length;i++){
+															$("#use_dept").append("<option>"+result[i]+"</option>");
+														}
+													},
+													error:function(result){
+														alert("Problem in Connection");
+													}
+												});
+											</script>
+                                        </select>
+                                        
+                                        </td>
+                                        </tr>
+                                    	<tr><th>Staff Name</th><th>Requested Leave</th><th>Days</th><th>Leave Type</th><th>Purpose</th><th></th></tr>
+                                    </table>
+                                    
+                                   
+                            
+                                </fieldset>
+                                <fieldset style="width: 95%;" id="alternate_staff"><legend id="change_head">Your Decision Required</legend>
+                                	<table id="edit_table" style="width:100%; font-size: 16px; text-align:center;">
+                                    
+                                    </table>
+                                </fieldset>
+                                
+                                <fieldset style="width: 95%;" id="cancel_leave"><legend>Requests for Cancelling The Leaves</legend>
+                                	<table id="edit_table3" style="width:100%; font-size: 16px; text-align:center; border-collapse:collapse" border="1">
+                                    
+                                    </table>
+                                
+                                </fieldset>
+                            </center>
+                            <!-- <div class="row1">
+								<!--<div class="img"><img src="images/img1.jpg" alt="" height="101" width="157"></div>
+								<div class="welcome">
+                                       <h1 class="title">Welcome to <span>SKCET Leave Management System</span></h1>
+                                       
+                                       <p><strong>Leave Management Portal is the website developed only for SKCET staffs.</strong><br><p>&nbsp;</p>
+                                       SKCET Leave Management Portal is highly aimed to reduce the paper work for the staffs to apply leave.
+                                       Staffs can apply leave directly from this Leave Management System. The applied leave will be automatically 									   forwarded to the higher officials for the leave approval. Staffs can also allocate other staffs for their 										classes. </p>
+								</div>
+							</div>-->
+							<!--<div class="row2">
+								<div class="section1">
+                                       <h2 class="subtitle">What&#8217;s New</h2>
+                                       <p><strong>Lorem Ipsum is simply dummy text of the<br>
+                                       printing and typesetting industry.</strong><br>
+                                       Lorem Ipsum has been the industry's standard<br>
+                                       dummy text ever since the 1500s, when an<br>
+                                       unknown printer took a galley of type and</p>
+                                       <p>&nbsp;</p>
+                                       <p>&nbsp;</p>
+                                       <p><a href="#" class="more">read more</a></p>
+								</div>
+								<div class="section2">
+                            	    <h2 class="subtitle">Resources</h2>
+                                    <p><strong>Lorem Ipsum is simply dummy text of the printing and
+                                    typesetting industry.</strong><br>
+                                    Lorem Ipsum has been the industry's standard dummy text ever since the
+                                    1500s, when an unknown printer took a galley of type and scrambled it
+                                    to make a type specimen book. It has survived not only five centuries,
+                                     but</p>
+                                     <p>&nbsp;</p>
+                                    <p><a href="#" class="more">read more</a></p>
+								</div>
+							</div>-->
+                           			<div id="popup" style="width: 500px; display: none; height: 300px;"> 
+                                    	<center><h3 style="margin-bottom: 5px;">Staff Alteration Details</h3></center>
+										<table id="staff_details" border="1" style="width:100%; border-collapse:collapse; text-align:center; margin-bottom: 10px;">
+                                        
+                                        </table>
+                                        
+                                        <center><h3 style="margin-bottom: 5px; margin-top: 10px;">Staff's Remaining Leaves</h3></center>
+                                        <table id="leaves_rem" border="1" style="width:100%; border-collapse:collapse; text-align:center; margin-bottom: 10px;">
+                                        
+                                        </table>
+                                        <center>
+                                        	<b><button id="hod_approve" var="">Approve</button>
+                                        	<button id="hod_deny" var="">Deny</button></b>
+                            			</center>
+                            		</div> <!--toPopup end-->
+
+						</div>
+                         
+						<div class="content-right login">
+                               <center><h2>Welcome</h2></center>
+                               		<!--<ul>
+                               		<li><p>User Name&nbsp;&nbsp; <input type="text" placeholder="User Name" id="leave_user"/></p></li>
+                                    <li><p style="margin-top: 10px;">Password&nbsp;&nbsp; <input type="password" placeholder="Password" id="leave_pass"/></p></li>
+                                    <li><p style="margin-top: 10px; margin-bottom: 10px"><button id="log">Login</button><button id="forgot">Forgot Password</button></p></li>
+                                    </ul>-->
+                                <!--<ul>
+                                  <li style="border-top: medium none;"><a href="#">Link 1</a></li>
+                                  <li><a href="#">Link 2</a></li>
+                                  <li><a href="#">Link 3</a></li>
+                                  <li><a href="#">Link 4</a></li>
+                                  
+
+                                </ul>
+                                <p>&nbsp;</p>
+                                <p>&nbsp;</p>
+                                <p>&nbsp;</p>-->
+						</div>
+                        
+                        <div class="content-right" style="margin-top: 10px;">
+                        	<center><h3 style="margin-top: 5px; margin-bottom: 5px;">Remaining Leave</h3></center>
+                            
+                            <table id="remaining_leave">
+                            
+                            </table>
+                        </div>
+                        
+                        <div class="content-right lop" style="margin-top: 10px; ">
+                        	<center><h3 style="margin-top: 5px; margin-bottom: 10px;">LOP Taken</h3></center>
+                            
+
+                        </div>
+					</div>
+				</div>
+				<div class="bottom">
+                        <ul>
+                          <li style="border-left: medium none;"><a href="leave_staff_home.html">Home</a></li>
+                          <li><a href="leavepersonal.html">My &nbsp;Profile</a></li>
+                          <li><a href="leave_staff_apply.html">Apply&nbsp;Leave</a></li>
+                          <li><a href="leave_staff_status.html">Leave&nbsp;Status</a></li>
+                          <li><a href="leave_staff_approve.html">Leave&nbsp;Approvals</a></li>
+                          <li><a href="leave_staff_cancel.html">Cancel&nbsp;Leave</a></li>
+                          <li><a href="leaveholidays.html">Holidays</a></li>
+                          <li><a href="leave_staff_about.html">About</a></li>
+                        </ul>
+                        
+                        <!--DO NOT Remove The Footer Links-->
+                        <p>&copy; Designed by <a>Arunkumar.B(BE CSE (2012 Batch) SKCET</a></p>
+                        
+                        <img src="images/footnote.gif" class="copyright" alt="HTML Templates"></a>
+				</div>
+<!--DO NOT Remove The Footer Links-->
+			</div>
+		</div>
+	</div>
+<script src="js/blurbox.js"></script>	
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Leave Management Home</title>
+  <meta name="description" content="Description of your site goes here">
+  <meta name="keywords" content="keyword1, keyword2, keyword3">
+  <link href="css/style.css" rel="stylesheet" type="text/css">
+  <script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
+  <script type="text/javascript" src="js/jquery.cookie.js"></script>
+  <script type="text/javascript">
+  $(window).load(function(){
+	$("#leave_report").hide();
+	if($.cookie("loged")){
+		$(".login").append("<ul><li>Staff-Id:&nbsp;&nbsp;"+$.cookie("loged").split("/")[0]+"</li><li>Staff-Name:&nbsp;&nbsp;"+$.cookie("loged").split("/")[2]+"</li><li>Staff-Type:&nbsp;&nbsp;"+$.cookie("loged").split("/")[1]+"</li><li><button class=\"logout\"><a>Logout</a></button><button class=\"edit_profile\"><a href=\"leavepersonal.html\">Edit Profile</a></button></li></ul>");
+		
+		if($.cookie("loged").split("//")[1]!="")
+		$("#logo").attr("src",$.cookie("loged").split("//")[1]);
+	else $("#logo").attr("src","phps/images/photos/user_icon.png");
+	}
+	else window.location.assign("leavehome.html");
+
+	$(".logout").click(function(){
+		$.removeCookie("loged");
+		window.location.assign("leavehome.html");
+		
+	});
+	
+	var d=new Date();
+	var date=d.getFullYear()+"-"+d.getMonth()+"-"+d.getDate();
+	var lop=0;
+	
+	if($.cookie("loged").split("/")[1]=="Principal"){
+	
+		$("#apply_leave,#leave_status,#cancel_leave").hide();
+		$(".content-right:not('.login')").hide();
+		$("#leave_report").show();
+	}
+	
+	if($.cookie("loged").split("/")[1]!="Principal"){
+		$.ajax({
+			url:"phps/remaining.php",
+			data:{user:$.cookie("loged").split("/")[0],type:$.cookie("loged").split("/")[1],today:date},
+			type:"POST",
+			dataType:"json",
+			success:function(result){
+				for(var i=0;i<result[0].length;i++){
+					if(parseInt(result[1][i][0].split("/")[0])>0)
+						$("#remaining_leave").append("<tr><td>"+result[0][i]+"</td><td><center><strong>"+result[1][i][0].split("/")[0]+"</strong></center></td></tr>");
+					else{
+						$("#remaining_leave").append("<tr><td>"+result[0][i]+"</td><td><center><strong>0</center></strong></td></tr>");
+						lop=lop-(result[1][i][0].split("/")[0]);
+					}
+				}
+	
+				$(".lop").append("<center><strong>"+lop+"</center></strong>");
+	
+			},
+			error:function(result){
+				alert("Problem in Connection");
+			}
+		});
+	}
+  });
+  </script>
+</head>
+<body>
+	<div class="main-out">
+		<div class="main">
+			<div class="page">
+				<div class="top">
+					<div class="header">
+						<div class="header-top">
+							<h1><span>SKCET Leave Management System</span></h1>
+							<p><img id="logo" width="100" height="80" style="mar"/></p>
+						</div>
+						<div class="topmenu">
+                            <ul>
+                              <li><a href="leave_staff_home.html">Home</a></li>
+                               <li><a href="leavepersonal.html">My Profile</a></li>
+                              <li id="apply_leave"><a href="leave_staff_apply.html" >Apply Leave</a></li>
+                              <li id="leave_status"><a href="leave_staff_status.html" >Leave Status</a></li>
+                              <li><a href="leave_staff_approve.html">Approvals</a></li>
+                              <li id="cancel_leave"><a href="leave_staff_cancel.html" >Cancel Leave</a></li>
+                              <li><a href="leaveholidays.html">Holiday Wizard</a></li>
+                              <li id="leave_report"><a href="leavereport.html">Report</a></li>
+                               <li><a href="#">About</a></li>
+                            </ul>
+						</div>
+						<!--<div class="header-img">
+							<h2>Slogan goes here</h2>
+						</div>-->
+					</div>
+					<div class="content">
+						<div class="content-left" style="min-height:400px;">
+							<div class="row1">
+								<!--<div class="img"><img src="images/img1.jpg" alt="" height="101" width="157"></div>-->
+								<div class="welcome">
+                                       <h1 class="title">About <span>SKCET Leave Management System</span></h1>
+                                       
+                                       
+                                       <p  style="line-height: 26px;">SKCET Leave Management Portal is highly aimed to reduce the paper work for the staffs to apply leave.
+                                       Staffs can apply leave directly from this Leave Management System. The applied leave will be automatically 									   forwarded to the higher officials for the leave approval. Staffs can also allocate other staffs for their 										classes. </p>
+								</div>
+							</div>
+                            
+                            <div class="row2">
+                            	<div class="section1">
+                                	<center><h3>Developed By</h3></center><br/>
+                                    
+                                    <table>
+                                    	<tr><td><img src="images/arun.jpg" width="100" height="120" /></td><td style="padding-left: 10px;"><strong>B.Arunkumar</strong><br/>B.E. CSE, SKCET (2010-2014)<br/>b.arun410@gmail.com</h2></td></tr>
+                                    </table>
+                                </div>
+                                
+                                <div class="section2">
+                                	<center><h3>Guided By</h3></center><br/>
+                                    <table>
+                                    	<tr><td><img src="images/1.bmp" width="100" height="120" /></td><td style="padding-left: 10px;"><strong>R.Manikandan</strong><br/>Assistant Professor<br/>Department of CSE<br/>manikandanr@skcet.ac.in</h2></td></tr>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <div class="row1" style="margin-top: 10px;">
+                            	<div class="welcome">
+                                	<h1 class="title">Contact <span>Us</span></h1>
+                                     
+                                    <span style="margin-top: -50px;">
+ 													
+                                    <p style="margin-left: 20px;">
+                                    	For further queries & help, please contact SLMS Administrator&nbsp;:&nbsp;<strong>slms@skcet.ac.in</strong>
+                                    </p></span>
+								</div>
+                            </div>
+							<!--<div class="row2">
+								<div class="section1">
+                                       <h2 class="subtitle">What&#8217;s New</h2>
+                                       <p><strong>Lorem Ipsum is simply dummy text of the<br>
+                                       printing and typesetting industry.</strong><br>
+                                       Lorem Ipsum has been the industry's standard<br>
+                                       dummy text ever since the 1500s, when an<br>
+                                       unknown printer took a galley of type and</p>
+                                       <p>&nbsp;</p>
+                                       <p>&nbsp;</p>
+                                       <p><a href="#" class="more">read more</a></p>
+								</div>
+								<div class="section2">
+                            	    <h2 class="subtitle">Resources</h2>
+                                    <p><strong>Lorem Ipsum is simply dummy text of the printing and
+                                    typesetting industry.</strong><br>
+                                    Lorem Ipsum has been the industry's standard dummy text ever since the
+                                    1500s, when an unknown printer took a galley of type and scrambled it
+                                    to make a type specimen book. It has survived not only five centuries,
+                                     but</p>
+                                     <p>&nbsp;</p>
+                                    <p><a href="#" class="more">read more</a></p>
+								</div>
+							</div>-->
+						</div>
+						<div class="content-right login">
+                               <center><h2>Welcome</h2></center>
+                               		<!--<ul>
+                               		<li><p>User Name&nbsp;&nbsp; <input type="text" placeholder="User Name" id="leave_user"/></p></li>
+                                    <li><p style="margin-top: 10px;">Password&nbsp;&nbsp; <input type="password" placeholder="Password" id="leave_pass"/></p></li>
+                                    <li><p style="margin-top: 10px; margin-bottom: 10px"><button id="log">Login</button><button id="forgot">Forgot Password</button></p></li>
+                                    </ul>-->
+                                <!--<ul>
+                                  <li style="border-top: medium none;"><a href="#">Link 1</a></li>
+                                  <li><a href="#">Link 2</a></li>
+                                  <li><a href="#">Link 3</a></li>
+                                  <li><a href="#">Link 4</a></li>
+                                  
+
+                                </ul>
+                                <p>&nbsp;</p>
+                                <p>&nbsp;</p>
+                                <p>&nbsp;</p>-->
+						</div>
+                        
+                        <div class="content-right" style="margin-top: 10px;">
+                        	<center><h3 style="margin-top: 5px;">Remaining Leave</h3></center>
+                            
+                            <table id="remaining_leave" style="margin-left: 20px;">
+                            
+                            </table>
+                        </div>
+                        
+                        <div class="content-right lop" style="margin-top: 10px;">
+                        	<center><h3 style="margin-top: 5px; margin-bottom: 10px;">LOP Taken</h3></center>
+                            
+
+                        </div>
+					</div>
+				</div>
+				<div class="bottom">
+                        <ul>
+                          <li style="border-left: medium none;"><a href="leave_staff_home.html">Home</a></li>
+                          <li><a href="leavepersonal.html">My &nbsp;Profile</a></li>
+                          <li><a href="leave_staff_apply.html">Apply&nbsp;Leave</a></li>
+                          <li><a href="leave_staff_status.html">Leave&nbsp;Status</a></li>
+                          <li><a href="leave_staff_approve.html">Leave&nbsp;Approvals</a></li>
+                          <li><a href="leave_staff_cancel.html">Cancel&nbsp;Leave</a></li>
+                          <li><a href="leaveholidays.html">Holidays</a></li>
+                          <li><a href="leave_staff_about.html">About</a></li>
+                        </ul>
+                        
+                        <!--DO NOT Remove The Footer Links-->
+                        <p>&copy; Designed by <a>Arunkumar.B(BE CSE (2012 Batch) SKCET</a></p>
+                        
+                        <img src="images/footnote.gif" class="copyright" alt="HTML Templates"></a>
+				</div>
+<!--DO NOT Remove The Footer Links-->
+			</div>
+		</div>
+	</div>
+	
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Leave Management Home</title>
+  <meta name="description" content="Description of your site goes here">
+  <meta name="keywords" content="keyword1, keyword2, keyword3">
+  <link href="css/style.css" rel="stylesheet" type="text/css">
+  <script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
+  <script type="text/javascript" src="js/jquery.cookie.js"></script>
+  <script type="text/javascript">
+  $(window).load(function(){
+  	$("#mail_li").hide();
+  	$("#log").click(function(){
+		if($(this).html()=="Login"){
+			if($("#leave_user").val()!="" && $("#leave_pass").val()!=""){
+				
+				$.ajax({
+					url:"phps/check_login.php",
+					data:{user:$("#leave_user").val(),pass:$("#leave_pass").val()},
+					type:"POST",
+					dataType:"json",
+					success:function(result){
+						
+						if(result[0]=="Success"){
+							
+							if(result[1]=="Admin"){
+								var user=$("#leave_user").val()+"/"+result[1]+"/"+result[2]+"//"+result[3];
+								$.cookie('loged', user , { expires: 1 });
+								window.location.assign("leave_admin_home.html");
+							}
+							else{
+								
+								var user=$("#leave_user").val()+"/"+result[1]+"/"+result[2]+"//"+result[3];
+								$.cookie('loged', user , { expires: 1 });
+								window.location.assign("leave_staff_home.html");							
+							}
+						}
+						else alert(result[0]);
+					},
+					error:function(result){
+						alert("Problem in Connection");
+					}
+				});
+			}
+			else alert("In appropriate User Name and Password");
+		}
+		
+		else{
+			if($("#leave_user").val()!="" && $("#leave_mail").val()!=""){
+				 var text = "";
+				 var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+	
+				 for( var i=0; i < 10; i++ )
+					text += possible.charAt(Math.floor(Math.random() * possible.length));
+				
+				$.ajax({
+					url:"phps/forgot_password.php",
+					data:{user:$("#leave_user").val(),pass:text,mail:$("#leave_mail").val()},
+					type:"POST",
+					dataType:"json",
+					success:function(result){
+						alert(result);
+						location.reload();
+					},
+					error:function(xhr){
+						alert(xhr.status);
+					}
+				});
+				
+			}	
+			else alert("Please give the user name and Mail ID and click \"Forgot Password\"");
+		}
+	});
+	
+	$("#forgot").click(function(){
+		$("input[type=text]").val("");
+		$("#log").html("Submit");
+		$(this).hide();
+		$("#pass_li").hide();
+		$("#mail_li").show();
+		
+	});
+  });
+  </script>
+</head>
+<body>
+	<div class="main-out">
+		<div class="main">
+			<div class="page">
+				<div class="top">
+					<div class="header">
+						<div class="header-top">
+							<h1><span>SKCET Leave Management System</span></h1>
+							<p></p>
+						</div>
+						<!--<div class="topmenu">
+                            <ul>
+                              <li><a href="#">Home</a></li>
+                              <li><a href="#">About&nbsp;Us</a></li>
+                              <li><a href="#">Contact</a></li>
+
+                            </ul>
+						</div>
+						<!--<div class="header-img">
+							<h2>Slogan goes here</h2>
+						</div>-->
+					</div>
+					<div class="content">
+						<div class="content-left">
+							<div class="row1">
+								<!--<div class="img"><img src="images/img1.jpg" alt="" height="101" width="157"></div>-->
+								<div class="welcome">
+                                       <h1 class="title" style="font: Geneva, Arial, Helvetica, sans-serif">Welcome to <span>SKCET Leave Management System!</span></h1>
+                                       
+                                      
+                                       SKCET Leave Management Portal is highly aimed to reduce the paper work for the staffs to apply leave.
+                                       Staffs can apply leave directly from this Leave Management System. The applied leave will be automatically 									   forwarded to the higher officials for the leave approval. Staffs can also allocate other staffs for their 										classes. </p>
+								</div>
+							</div>
+							<!--<div class="row2">
+								<div class="section1">
+                                       <h2 class="subtitle">What&#8217;s New</h2>
+                                       <p><strong>Lorem Ipsum is simply dummy text of the<br>
+                                       printing and typesetting industry.</strong><br>
+                                       Lorem Ipsum has been the industry's standard<br>
+                                       dummy text ever since the 1500s, when an<br>
+                                       unknown printer took a galley of type and</p>
+                                       <p>&nbsp;</p>
+                                       <p>&nbsp;</p>
+                                       <p><a href="#" class="more">read more</a></p>
+								</div>
+								<div class="section2">
+                            	    <h2 class="subtitle">Resources</h2>
+                                    <p><strong>Lorem Ipsum is simply dummy text of the printing and
+                                    typesetting industry.</strong><br>
+                                    Lorem Ipsum has been the industry's standard dummy text ever since the
+                                    1500s, when an unknown printer took a galley of type and scrambled it
+                                    to make a type specimen book. It has survived not only five centuries,
+                                     but</p>
+                                     <p>&nbsp;</p>
+                                    <p><a href="#" class="more">read more</a></p>
+								</div>
+							</div>-->
+						</div>
+						<div class="content-right">
+                               <center><h2>Log In</h2></center>
+                               		<ul>
+                               		<li><p>User Name&nbsp;&nbsp; <input type="text" placeholder="Staff ID" id="leave_user" style="width: 150px;" /></p></li>
+                                    <li id="pass_li"><p style="margin-top: 10px;">Password&nbsp;&nbsp; <input type="password" placeholder="Password" id="leave_pass" style="width: 150px;" /></p></li>
+                                     <li id="mail_li"><p style="margin-top: 10px;">Mail ID&nbsp;&nbsp; <input type="text" placeholder="Your Mail ID" id="leave_mail" style="width: 150px;" /></p></li>
+                                    <li><p style="margin-top: 10px; margin-bottom: 10px"><button id="log">Login</button><button id="forgot">Forgot Password</button></p></li>
+                                    </ul>
+                                <!--<ul>
+                                  <li style="border-top: medium none;"><a href="#">Link 1</a></li>
+                                  <li><a href="#">Link 2</a></li>
+                                  <li><a href="#">Link 3</a></li>
+                                  <li><a href="#">Link 4</a></li>
+                                  
+
+                                </ul>
+                                <p>&nbsp;</p>
+                                <p>&nbsp;</p>
+                                <p>&nbsp;</p>-->
+						</div>
+					</div>
+				</div>
+				<div class="bottom">
+                    <p><h1 style="margin-top: -15px;"><span>Sri Krishna College of Engineering and Technology</span></h1><br/>
+
+					Phone :0422 - 2678001 (7 Lines),Fax :0422 - 2678012<br/>
+					E-mail :info@skcet.ac.in,Website :www.skcet.ac.in</p>
+                        
+                        <!--DO NOT Remove The Footer Links-->
+                        
+                        
+                        <img src="images/footnote.gif" class="copyright" alt="HTML Templates">
+				</div>
+<!--DO NOT Remove The Footer Links-->
+			</div>
+		</div>
+	</div>
+	
+</body>
+</html>

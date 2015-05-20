@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Leave Management Home</title>
+  <meta name="description" content="Description of your site goes here">
+  <meta name="keywords" content="keyword1, keyword2, keyword3">
+  <link href="css/style.css" rel="stylesheet" type="text/css">
+  <script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
+  <script type="text/javascript" src="js/jquery.cookie.js"></script>
+  
+  <script type="text/javascript">
+  $(window).load(function(){
+
+	if($.cookie("loged")){
+		
+		$(".login").append("<ul><li>Staff-Id:&nbsp;&nbsp;"+$.cookie("loged").split("/")[0]+"</li><li>Staff-Name:&nbsp;&nbsp;"+$.cookie("loged").split("/")[2]+"</li><li>Staff-Type:&nbsp;&nbsp;"+$.cookie("loged").split("/")[1]+"</li><li><button class=\"logout\"><a>Logout</a></button><button class=\"edit_profile\"><a href=\"leave_admin_personal.html\">Edit Profile</a></button></li></ul>");
+		
+		if($.cookie("loged").split("//")[1]!="")
+		$("#logo").attr("src",$.cookie("loged").split("//")[1]);
+	else $("#logo").attr("src","phps/images/photos/user_icon.png");
+	}
+	else window.location.assign("leavehome.html");
+
+	$(".logout").click(function(){
+		$.removeCookie("loged");
+		window.location.assign("leavehome.html");
+	});
+	
+	$("#delete_div,#new_dept_div,#new_desig_div,#delete_staff_details,#edit_staff_details,#submit_table").hide();
+	
+	
+	
+	$("#delete").click(function(){
+		$("#add_div,#new_dept_div,#new_desig_div").hide();
+		$("#delete_div").show();
+		$(this).css("border-bottom","2px solid #1da5ee");
+		$("#add").css("border-bottom","");
+	});
+	
+	$("#dept").click(function(){
+		$("#add_div,#delete_div,#new_desig_div").hide();
+		$("#new_dept_div").show();
+	});
+	
+	$("#desig").click(function(){
+		$("#add_div,#delete_div,#new_dept_div").hide();
+		$("#new_desig_div").show();
+	});
+	
+	$("#add").click(function(){
+		$("#add_div").show();
+		$("#delete_div,#new_dept_div,#new_desig_div").hide();
+		$(this).css("border-bottom","2px solid #1da5ee");
+		$("#delete").css("border-bottom","");
+	});
+	
+	$("#single_submit").click(function(){
+		
+		if($("#staff_name").val()!="" && $("#staff_id").val()!="" && $("#staff_type").val()!="--Select Type--" && $("#staff_dept").val()!="--Select Any Department--" && $("#staff_doj").val()!="" && $("#staff_mail").val()!="" && $("#staff_contact").val()!="" && $("#staff_desig").val()!="--Select Any Designation--"){
+			if($("#staff_type").val()!="Principal"){
+			
+				var d=new Date();
+				var year=d.getFullYear();
+				var leave_names=[],leaves=[];
+				
+				for(var i=1;i<$("#edit_table tr").length;i++){
+					leave_names[i-1]=$("."+i).attr("class").split("!!!")[1];
+					leaves[i-1]=$("."+i).val();
+				}
+				
+				$.ajax({
+					url:"phps/create_staff.php",
+					data:{name:$("#staff_name").val(),id:$("#staff_id").val(),type:$("#staff_type").val(),dept:$("#staff_dept").val(),doj:$("#staff_doj").val(),mail:$("#staff_mail").val(),contact:$("#staff_contact").val(),designation: $("#staff_desig").val(),to:$(".to").val(),ln:leave_names,lv:leaves},
+					type:"POST",
+					dataType:"json",
+					success:function(result){
+						alert(result);
+						location.reload();
+					},
+					error:function(result){
+						alert("Problem in Connection");
+					}
+				});
+			}
+			else{
+				$.ajax({
+					url:"phps/create_staff.php",
+					data:{name:$("#staff_name").val(),id:$("#staff_id").val(),type:$("#staff_type").val(),dept:$("#staff_dept").val(),doj:$("#staff_doj").val(),mail:$("#staff_mail").val(),contact:$("#staff_contact").val(),designation: $("#staff_desig").val(),to:"Princi",ln:"Princi",lv:"Princi"},
+					type:"POST",
+					dataType:"json",
+					success:function(result){
+						alert(result);
+						location.reload();
+					},
+					error:function(result){
+						alert("Problem in Connection");
+					}
+				});
+			}
+		}
+		else alert("Please provide all details...");
+	});
+	
+	$("#staff_type").change(function(){
+		
+		if($(this).val()!="--Select Type--" && $(this).val()!="Principal"){
+			if($(this).val()=="Teaching Staff" || $(this).val()=="HOD")
+				var stype="Teaching Staff";
+			else var stype="Non teaching Staff";
+			$.ajax({
+				url:"phps/get_staff_leave.php",
+				data:{type:stype},
+				type:"POST",
+				dataType:"json",
+				success:function(result){
+					$("#edit_table").html("");
+					if(result[0].length>0){
+						//alert(result[0].length);
+						for(var i=0;i<result[0].length;i++){
+							$("#edit_table").append("<tr><td>"+result[0][i]+"</td><td><input type=\"text\" class=\""+(i+1)+" !!!"+result[0][i]+"\" value=\"0\"/></td></tr>");
+						}
+						$("#edit_table").append("<tr><td>Leave Upto</td><td><input type=\"date\" class=\"to\" disabled /></td></tr>")
+					}
+				},
+				error:function(result){
+					alert("Problem in Connection");
+				}
+			});
+		}
+		else $("#edit_table").html("");
+	});
+	
+	$("#staff_doj").change(function(){	
+		
+		if($(this).val()!=""){
+			$.ajax({
+				url:"phps/get_date.php",
+				data:{from:$("#staff_doj").val()},
+				type:"POST",
+				dataType:"json",
+				success:function(result){
+					$(".to").val(result);
+				},
+				error:function(result){
+					alert("Problem in Connection");
+				}
+			});
+		}
+	});
+	
+	$("#staff_mail").blur(function(){
+		var reg=new RegExp(/^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/i);
+		
+		if(!(reg.test($(this).val())))
+			$(this).val("");			
+	});
+	
+	$("#staff_id").blur(function(){
+		$("#staff_user,#staff_pass").val($(this).val());
+	});
+	
+	$("#add_dept").click(function(){
+		if($("#new_dept").val()){
+			if(confirm("Are you sure to add the Department:"+$("#new_dept").val())){
+				$.ajax({
+					url:"phps/edit_dept.php",
+					data:{name:$("#new_dept").val(),id:"1"},
+					type:"POST",
+					dataType:"json",
+					success:function(result){
+						alert(result);
+						location.reload();
+					},
+					error:function(result){
+						alert("Problem in Connection");
+					}
+				});
+			}
+		}
+		else alert("Please Enter a Department Name");
+	});
+	
+	$("#delete_dept").click(function(){
+		
+		if($("#del_dept_name").val()!="--Select Any Department--"){
+			if(confirm("Are you sure to delete the Department:"+$("#del_dept_name").val())){
+				$.ajax({
+					url:"phps/edit_dept.php",
+					data:{name:$("#del_dept_name").val(),id:"2"},
+					type:"POST",
+					dataType:"json",
+					success:function(result){
+						alert(result);
+						location.reload();
+					},
+					error:function(result){
+						alert("Problem in Connection");
+					}
+				});
+			}
+		}
+		else alert("Please Select any Department Name");
+	});
+	
+	$("#add_desig").click(function(){
+		
+		if($("#new_desig").val()){
+			if(confirm("Are you sure to add the Designation:"+$("#new_desig").val())){
+				$.ajax({
+					url:"phps/edit_desig.php",
+					data:{name:$("#new_desig").val(),id:"1"},
+					type:"POST",
+					dataType:"json",
+					success:function(result){
+						alert(result);
+						location.reload();
+					},
+					error:function(result){
+						alert("Problem in Connection");
+					}
+				});
+			}
+		}
+		else alert("Please Enter a Designation Name");
+	});
+	
+	$("#delete_desig").click(function(){
+		
+		if($("#del_desig_name").val()!="--Select Any Designation--"){
+			if(confirm("Are you sure to delete the Designation:"+$("#del_desig_name").val())){
+				$.ajax({
+					url:"phps/edit_desig.php",
+					data:{name:$("#del_desig_name").val(),id:"2"},
+					type:"POST",
+					dataType:"json",
+					success:function(result){
+						alert(result);
+						location.reload();
+					},
+					error:function(result){
+						alert("Problem in Connection");
+					}
+				});
+			}
+		}
+		else alert("Please Select any Designation Name");
+	});
+	
+	$("#delete_staff_submit").click(function(){
+		if($("#delete_staff").val()){
+			
+			$.ajax({
+				url:"phps/edit_personal.php",
+				data:{id:$("#delete_staff").val(),flag:"1",mail:"",contact:"",password:""},
+				type:"POST",
+				dataType:"json",
+				success:function(result){
+					$("#delete_table,#leave_table").html("");	
+					$("#delete_table").append("<tr><td>Staff Id</td><td colspan=\"2\" style=\"margin-left: 30px;\">"+result[0]+"</td></tr>");
+					$("#delete_table").append("<tr><td>Staff Name</td><td colspan=\"2\" style=\"margin-left: 30px;\">"+result[1]+"</td></tr>");
+					$("#delete_table").append("<tr><td>Staff Type</td><td colspan=\"2\" style=\"margin-left: 30px;\">"+result[2]+"</td></tr>");
+					$("#delete_table").append("<tr><td>Staff Department</td><td colspan=\"2\" style=\"margin-left: 30px;\">"+result[3]+"</td></tr>");
+					$("#delete_table").append("<tr><td>Staff Designation</td><td colspan=\"2\" style=\"margin-left: 30px;\">"+result[4]+"</td></tr>");
+					$("#delete_table").append("<tr><td>Staff Date Of Joining</td><td colspan=\"2\" style=\"margin-left: 30px;\">"+result[5]+"</td></tr>");
+					$("#delete_table").append("<tr><td>Staff Mail Id</td><td colspan=\"2\" style=\"margin-left: 30px;\">"+result[6]+"</td></tr>");
+					$("#delete_table").append("<tr><td>Staff Mobile Number</td><td colspan=\"2\" style=\"margin-left: 50px;\">"+result[7]+"</td></tr>");
+					//$("#delete_table").append("<tr style=\"text-align:center\"><td><button id=\"update_please\">Update</button></td><td><button id=\"delete_please\">Delete</button></td></tr>");
+					//$("#delete_table tr:gt(0)").remove();	
+					var d=new Date();
+					var date=d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+					var lop=0;
+					
+					$.ajax({
+						url:"phps/remaining.php",
+						data:{user:$("#delete_staff").val(),type:"",today:date},
+						type:"POST",
+						dataType:"json",
+						success:function(result){
+							if(result[0].length>0){
+							
+								$("#delete_staff_details,#edit_staff_details,#submit_table").show();
+								for(var i=0;i<result[0].length;i++){
+								
+									if(parseInt(result[1][i][0].split("/")[0])>0){
+										if(result[0][i]!="On Duty"){
+											$("#leave_table").append("<tr><td>"+result[0][i]+"</td><td><input type=\"text\" value=\""+result[1][i][0].split("/")[0]+"\" id=\""+result[0][i]+"\" disabled /></td></tr>");
+											
+										}
+										else $("#leave_table").append("<tr><td>"+result[0][i]+"</td><td><input type=\"text\" value=\""+result[1][i][0].split("/")[0]+"\" id=\""+result[0][i].split(" ")[0]+"\" /></td></tr>");
+									}
+									else{
+										if(result[0][i]!="On Duty")
+											$("#leave_table").append("<tr><td>"+result[0][i]+"</td><td><input type=\"text\" value=\""+result[1][i][0].split("/")[0]+"\" id=\""+result[0][i]+"\" disabled /></td></tr>");
+										else $("#leave_table").append("<tr><td>"+result[0][i]+"</td><td><input type=\"text\" value=\""+result[1][i][0].split("/")[0]+"\" id=\""+result[0][i].split(" ")[0]+"\" /></td></tr>");
+										
+										lop=lop-(result[1][i][0].split("/")[0]);
+									}
+								}
+					
+								$("#leave_table").append("<tr><td>LOPs Taken</td><td><input type=\"text\" value=\""+lop+"\" id=\""+result[0][i]+"\" disabled /></td></tr>");
+							}
+							else{ 
+								alert("No Data Available");
+							}
+				
+						},
+						error:function(result){
+							alert("Problem in Connection");
+						}
+					});
+				},
+				error:function(xhr){
+					alert("No Data Available...");
+					$("#delete_staff").val("")
+				}
+			});
+		}
+		else alert("Data Missing");
+	});
+	
+	$(document).on("click","#delete_please",function(){
+		if(confirm("Are Yoy Sure To Delete This Staff?")){
+		$.ajax({
+			url:"phps/delete_staff.php",
+			data:{id:$("#delete_staff").val()},
+			type:"POST",
+			dataType:"json",
+			success:function(result){
+				alert("Staff Deleted Successfully");
+				$("#delete_table").html("");
+				$("#delete_staff").val("");
+				$("#delete_staff_details,#edit_staff_details,#submit_table").hide();
+			},
+			error:function(){
+				alert(xhr.status);
+			}
+		});
+		}
+	});
+	
+	$(document).on("click","#update_please",function(){
+		var d=new Date();
+		var date=d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+		
+		if(confirm("Are Yoy Sure To Update This Staff Leave Details?")){
+			
+			$.ajax({
+				url:"phps/update_leave_details.php",
+				data:{id:$("#delete_staff").val(),on:$("#On").val(),d:date},
+				type:"POST",
+				dataType:"json",
+				success:function(result){
+					alert("Staff Leave Details Updated Successfully");
+					$("#delete_table").html("");
+					$("#delete_staff").val("");
+					$("#delete_staff_details,#edit_staff_details,#submit_table").hide();
+				},
+				error:function(){
+					alert(xhr.status);
+				}
+			});
+		}
+	});
+	
+  });
+  
+  function isNumber(evt) {
+    evt = (evt) ? evt : window.event;
+    var charCode = (evt.which) ? evt.which : evt.keyCode;
+    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+        return false;
+    }
+    return true;
+  }
+  </script>
+</head>
+<body>
+	<div class="main-out">
+		<div class="main">
+			<div class="page">
+				<div class="top">
+					<div class="header">
+						<div class="header-top">
+							<h1><span>SKCET Leave Management System</span></h1>
+							<p><img id="logo" width="100" height="80" style="mar"/></p>
+						</div>
+						<div class="topmenu">
+                            <ul>
+                              <li><a href="leave_admin_home.html">Home</a></li>
+                               <li><a href="leave_admin_personal.html">My Profile</a></li>
+                              <li><a href="#">Staff Entry</a></li>
+                              <li><a href="leave_admin_holiday.html">Holiday Entry</a></li>
+                              <li><a href="leave_admin_leave.html">Leave Entry</a></li>
+                              <li><a href="leave_admin_report.html">Leave Report</a></li>
+                              <li><a href="leave_admin_about.html">About</a></li>
+                            </ul>
+						</div>
+						<!--<div class="header-img">
+							<h2>Slogan goes here</h2>
+						</div>-->
+					</div>
+					<div class="content">
+                    	
+						<div class="content-left" style="min-height:400px; margin-top: 20px;">
+                        
+                        	<span style="margin-left: 20px; margin-right: 20px; font-size:16px"><strong><a id="add" style="border-bottom: 2px solid #1da5ee;">Add Staff</a></strong></span>|<span style="margin-left: 20px; margin-right: 20px; font-size:16px;"><strong><a id="delete">Edit Staff</a></strong></span>|<span style="margin-left: 20px; margin-right: 20px; font-size:16px;"><strong><a id="dept">Department Entry</a></strong></span>|<span style="margin-left: 20px; margin-right: 20px; font-size:16px;"><strong><a id="desig">Designation Entry</a></strong></span>
+                        	<center>
+                            	<div id="add_div" style="margin-top: 10px;">
+                                    <h1>Add Staff Entry</h1>
+                                    
+                                    <div style="width: 80%;">
+                                    
+                                   
+                                    <fieldset style="margin-top: 20px;width: 80%; background-color:#FFFFFF"><legend style="margin-left: -100px;">Personal Details</legend>
+                                    
+                                    <table style=" ">
+                                        <tr><td>Staff Name</td><td> <input type="text" style="margin-left: 20px;" id="staff_name" name="staff_name" placeholder="Arunkumar Bagavathi" /></td></tr>
+                                        <tr><td>Staff Id</td><td> <input type="text" style="margin-left: 20px;" id="staff_id" name="staff_id" placeholder="CS14200" /></td></tr>
+                                      	<tr><td>Staff Type</td><td> <select style="margin-left: 20px;width:153px;" id="staff_type" name="staff_type">
+                                            <option>--Select Type--</option>
+                                            <option>Principal</option>
+                                            <option>HOD</option>
+                                            <option>Teaching Staff</option>
+                                            <option>Non teaching Staff</option></select>
+                                        </td></tr>
+                                        <tr><td>Designation</td><td> <select id="staff_desig" name="staff_desig" style="margin-left: 20px;">
+                                            <option>--Select Any Designation--</option>
+                                            <script>
+												$.ajax({
+													url:"phps/get_desig.php",
+													data:{},
+													type:"POST",
+													dataType:"json",
+													success:function(result){
+														for(var i=0;i<result.length;i++){
+															$("#staff_desig").append("<option>"+result[i]+"</option>");
+														}
+													},
+													error:function(result){
+														alert("Problem in Connection");
+													}
+												});
+											</script>
+                                            </select></td></tr>
+                                        <tr><td>Department</td><td> <select id="staff_dept" name="staff_dept" style="margin-left:20px;">
+                                            <option>--Select Any Department--</option>
+                                            <script>
+												$.ajax({
+													url:"phps/get_dept.php",
+													data:{},
+													type:"POST",
+													dataType:"json",
+													success:function(result){
+														for(var i=0;i<result.length;i++){
+															$("#staff_dept").append("<option>"+result[i]+"</option>");
+														}
+													},
+													error:function(result){
+														alert("Problem in Connection");
+													}
+												});
+											</script>
+                                            </select></td></tr>
+                                        <tr><td>Date of Joining</td><td> <input type="date" style="margin-left: 20px;" id="staff_doj" name="staff_doj" /></td></tr>
+                                        <tr><td>Mail-Id</td><td> <input type="text" style="margin-left: 20px;" id="staff_mail" name="staff_mail" placeholder="arunb@skcet.ac.in" /></td></tr>
+                                        <tr><td>Staff Contact</td><td> <input type="text" style="margin-left: 20px;" id="staff_contact" name="staff_contact" onKeyPress="return isNumber(event)" placeholder="7708920081" maxlength="10" /></td></tr>
+                                        
+                                        <tr><td>Staff Photo</td><td><input type="file" style="margin-left: 20px; border: 1px solid #CCCCCC" id="staff_photo" name="staff_photo" /></td></tr>	
+									</table>
+                                    
+                                    </fieldset>
+                                    
+                                     <fieldset style="margin-top: 20px;width: 80%; background-color:#FFFFFF"><legend style="margin-left: -100px;">Leave Details</legend>
+                                    <table id="edit_table">
+                                    	
+                                    </table>
+                                    </fieldset>
+                                    
+                                    <fieldset style="margin-top: 20px;width: 80%; background-color:#FFFFFF"><legend style="margin-left: -100px;">Login Details</legend>
+                                    <table>
+                                        <tr><td colspan="2">
+                                            <table>
+                                                <tr><td>User Name</td><td><input type="text" id="staff_user" namne="staff_user" disabled/></td></tr>
+                                                <tr><td>Password</td><td><input type="text" id="staff_pass" name="staff_pass" disabled/></td></tr>
+                                            </table>
+                                        </fieldset></td></tr>
+                                        <tr><td colspan="2"></td></tr>
+                                    </table>
+                                    </fieldset>
+                                    <center><button id="single_submit" style="margin-top: 10px;">Submit</button></center>
+                                    
+                                   <!-- <br/>
+                                    <span style="width: 100%; margin-top: 10px;">(OR)</span>
+                                    
+                                    <fieldset style="margin-top: 10px;width: 80%;"><legend style="margin-left: -100px;">Staff Entry As Excel Sheet</legend>
+                                    <form method="post" action="upload_csv.php">
+                                    <table style=" ">
+                                        <tr><td>Excel File</td><td><input type="file" name="file" style="margin-left:30px;width: 200px;border:1px solid black" /></td></tr>
+                                         <tr><td colspan="2"><center><input type="submit" name="excel_submit" value="Submit" style="margin-top: 10px;" /></center></td></tr>
+                                    </table>
+                                    </form>
+                                    </fieldset>-->
+                                   </div>
+                               </div>
+                               
+                               <div id="delete_div" style="width: 80%; margin-top: 10px;">
+                               		<h1>Edit Staff Entry</h1>
+                                
+                                
+                                	<fieldset style="margin-top: 20px;width: 90%;"><legend style="margin-left: -100px;">Edit Staff</legend>
+                                
+                                	<table style="text-align:center">
+                                		<tr><td style="width: 50%;">Staff-Id</td><td><input type="text" id="delete_staff" style="" /></td><td><button id="delete_staff_submit" style="margin-left: 20px; margin-top: 5px;">Submit</button></td></tr>
+                                    
+                                	</table>
+                                
+                                	</fieldset>
+                                
+                                	<fieldset  style="margin-top: 20px;width: 90%;" id="delete_staff_details"><legend style="margin-left: -100px;">Staff Details</legend>
+                                    	<table id="delete_table" border="1" style="border-collapse:collapse; width: 90%;">
+                                        
+                                        </table>
+                                    </fieldset>
+                                    
+                                    <fieldset  style="margin-top: 20px;width: 90%;" id="edit_staff_details"><legend style="margin-left: -100px;">Staff Leave Details</legend>
+                                    	<table id="leave_table" border="1" style="border-collapse:collapse; width: 90%;">
+                                        
+                                        </table>
+                                    </fieldset>
+                                    
+                                    
+                                    	<table id="submit_table" style="width: 90%; text-align: center;">
+                                        	<tr><td><button id="update_please">Update</button></td><td><button id="delete_please">Delete</button></td></tr>
+                                        </table>
+                                   
+                                </div>
+                                
+                                <div id="new_dept_div" style="margin-top: 10px;">
+                                	<h1>Edit Department Entries</h1>
+                                	<fieldset style="margin-top: 20px;width: 80%;"><legend style="margin-left: -100px;">Add Department</legend>
+                                    	<table style=" ">
+                                			<tr><td>New Department Name</td><td><input type="text" id="new_dept" style="margin-left:30px;" placeholder="(eg)BE CSE" /></td><td><button id="add_dept" style="margin-left: 20px; margin-top: 5px;">OK</button></td></tr>
+                                    
+                                		</table>
+                                    </fieldset>
+                                    
+                                    <fieldset style="margin-top: 20px;width: 80%;"><legend style="margin-left: -100px;">Delete Department</legend>
+                                    	<table style=" ">
+                                			<tr><td>Select Department Name</td><td><select id="del_dept_name" style="margin-left:30px;">
+                                            <option>--Select Any Department--</option>
+                                            <script>
+												$.ajax({
+													url:"phps/get_dept.php",
+													data:{},
+													type:"POST",
+													dataType:"json",
+													success:function(result){
+														for(var i=0;i<result.length;i++){
+															$("#del_dept_name").append("<option>"+result[i]+"</option>");
+														}
+													},
+													error:function(result){
+														alert("Problem in Connection");
+													}
+												});
+											</script>
+                                            </select>
+                                            </td><td><button id="delete_dept" style="margin-left: 20px; margin-top: 5px;">OK</button></td></tr>
+                                    
+                                		</table>
+                                    </fieldset>
+                                </div>
+                                
+                                <div id="new_desig_div" style="margin-top: 10px;">
+                                	<h1>Edit Designation Entries</h1>
+                                	<fieldset style="margin-top: 20px;width: 80%;"><legend style="margin-left: -100px;">Add Designation</legend>
+                                    	<table style=" ">
+                                			<tr><td>New Designation Name</td><td><input type="text" placeholder="(eg)Assistant Professor" id="new_desig" style="margin-left:30px;" /></td><td><button id="add_desig" style="margin-left: 20px; margin-top: 5px;" >OK</button></td></tr>
+                                    
+                                		</table>
+                                    </fieldset>
+                                    
+                                    <fieldset style="margin-top: 20px;width: 80%;"><legend style="margin-left: -100px;">Delete Designation</legend>
+                                    	<table style=" ">
+                                			<tr><td>Select Designation Name</td><td><select id="del_desig_name" style="margin-left:30px;">
+                                            <option>--Select Any Designation--</option>
+                                            <script>
+												$.ajax({
+													url:"phps/get_desig.php",
+													data:{},
+													type:"POST",
+													dataType:"json",
+													success:function(result){
+														for(var i=0;i<result.length;i++){
+															$("#del_desig_name").append("<option>"+result[i]+"</option>");
+														}
+													},
+													error:function(result){
+														alert("Problem in Connection");
+													}
+												});
+											</script>
+                                            </select>
+                                            </td><td><button id="delete_desig" style="margin-left: 20px; margin-top: 5px;">OK</button></td></tr>
+                                    
+                                		</table>
+                                    </fieldset>
+                                </div>
+                                
+                            </center>
+							<!--<div class="row1">
+								<!--<div class="img"><img src="images/img1.jpg" alt="" height="101" width="157"></div>-->
+								<!--<div class="welcome">
+                                       <h1 class="title">Welcome to <span>SKCET Leave Management System</span></h1>
+                                       
+                                       <p><strong>Leave Management Portal is the website developed only for SKCET staffs.</strong><br><p>&nbsp;</p>
+                                       SKCET Leave Management Portal is highly aimed to reduce the paper work for the staffs to apply leave.
+                                       Staffs can apply leave directly from this Leave Management System. The applied leave will be automatically 									   forwarded to the higher officials for the leave approval. Staffs can also allocate other staffs for their 										classes. </p>
+								</div>
+							</div>-->
+							<!--<div class="row2">
+								<div class="section1">
+                                       <h2 class="subtitle">What&#8217;s New</h2>
+                                       <p><strong>Lorem Ipsum is simply dummy text of the<br>
+                                       printing and typesetting industry.</strong><br>
+                                       Lorem Ipsum has been the industry's standard<br>
+                                       dummy text ever since the 1500s, when an<br>
+                                       unknown printer took a galley of type and</p>
+                                       <p>&nbsp;</p>
+                                       <p>&nbsp;</p>
+                                       <p><a href="#" class="more">read more</a></p>
+								</div>
+								<div class="section2">
+                            	    <h2 class="subtitle">Resources</h2>
+                                    <p><strong>Lorem Ipsum is simply dummy text of the printing and
+                                    typesetting industry.</strong><br>
+                                    Lorem Ipsum has been the industry's standard dummy text ever since the
+                                    1500s, when an unknown printer took a galley of type and scrambled it
+                                    to make a type specimen book. It has survived not only five centuries,
+                                     but</p>
+                                     <p>&nbsp;</p>
+                                    <p><a href="#" class="more">read more</a></p>
+								</div>
+							</div>-->
+						</div>
+						<div class="content-right login">
+                               <center><h2>Welcome</h2></center>
+                               		<!--<ul>
+                               		<li><p>User Name&nbsp;&nbsp; <input type="text" placeholder="User Name" id="leave_user"/></p></li>
+                                    <li><p style="margin-top: 10px;">Password&nbsp;&nbsp; <input type="password" placeholder="Password" id="leave_pass"/></p></li>
+                                    <li><p style="margin-top: 10px; margin-bottom: 10px"><button id="log">Login</button><button id="forgot">Forgot Password</button></p></li>
+                                    </ul>-->
+                                <!--<ul>
+                                  <li style="border-top: medium none;"><a href="#">Link 1</a></li>
+                                  <li><a href="#">Link 2</a></li>
+                                  <li><a href="#">Link 3</a></li>
+                                  <li><a href="#">Link 4</a></li>
+                                  
+
+                                </ul>
+                                <p>&nbsp;</p>
+                                <p>&nbsp;</p>
+                                <p>&nbsp;</p>-->
+						</div>
+                        
+					</div>
+				</div>
+				<div class="bottom">
+                        <ul>
+                          <li style="border-left: medium none;"><a href="leave_admin_home.html">Home</a></li>
+                          <li><a href="leave_admin_personal.html">My &nbsp;Profile</a></li>
+                          <li><a href="leave_admin_staff.html">Staff&nbsp;Entry</a></li>
+                          <li><a href="leave_admin_holiday.html">Holiday&nbsp;Entry</a></li>
+                          <li><a href="leave_admin_leave.html">Leave&nbsp;Entry</a></li>
+                          <li><a href="leave_admin_report.html">Leave&nbsp;Report</a></li>
+                          <li><a href="leave_admin_about.html">About</a></li>
+                        </ul>
+                        
+                        <!--DO NOT Remove The Footer Links-->
+                        <p>&copy; Designed by <a>Arunkumar.B(BE CSE (2012 Batch) SKCET</a></p>
+                        
+                        <img src="images/footnote.gif" class="copyright" alt="HTML Templates"></a>
+				</div>
+<!--DO NOT Remove The Footer Links-->
+			</div>
+		</div>
+	</div>
+	
+</body>
+</html>

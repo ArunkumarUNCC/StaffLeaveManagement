@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Leave Management Home</title>
+  <meta name="description" content="Description of your site goes here">
+  <meta name="keywords" content="keyword1, keyword2, keyword3">
+  <link href="css/style.css" rel="stylesheet" type="text/css">
+  <script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
+  <script type="text/javascript" src="js/jquery.cookie.js"></script>
+  <script src="js/jquery.PrintArea.js" type="text/JavaScript" language="javascript"></script>
+  <script src="js/tableToExcel.js"></script>
+
+  <script type="text/javascript">
+  $(window).load(function(){
+	$("#more,#history,#remaining,#staff_content,#print,#export,#hide_head,#hide_foot,#lop_report").hide();
+
+	if($.cookie("loged")){
+		$(".login").append("<ul><li>Staff-Id:&nbsp;&nbsp;"+$.cookie("loged").split("/")[0]+"</li><li>Staff-Name:&nbsp;&nbsp;"+$.cookie("loged").split("/")[2]+"</li><li>Staff-Type:&nbsp;&nbsp;"+$.cookie("loged").split("/")[1]+"</li><li><button class=\"logout\"><a>Logout</a></button><button class=\"edit_profile\"><a href=\"leave_admin_personal.html\">Edit Profile</a></button></li></ul>");
+		
+		if($.cookie("loged").split("//")[1]!="")
+		$("#logo").attr("src",$.cookie("loged").split("//")[1]);
+	else $("#logo").attr("src","phps/images/photos/user_icon.png");
+	}
+	else window.location.assign("leavehome.html");
+
+	$(".logout").click(function(){
+		$.removeCookie("loged");
+		window.location.assign("leavehome.html");
+		
+	});
+	
+	
+	
+	$("#single_submit").click(function(){
+		if($("#single_date").val()!=""){
+			$("#print,#export").show();
+			$.ajax({
+				url:"phps/single_report.php",
+				data:{date:$("#single_date").val(),dept:$("#single_dept").val(),type:$("#single_type").val()},
+				type:"POST",
+				dataType:"json",
+				success:function(result){
+					$("#staff_content").show();
+					
+					if(result[0].length>0){
+						$("#staff_content").html("<tr><td colspan=\"100%;\"><span style=\"text-align: center;\"><h3>Daywise Report</h4></span></td></tr><tr><td colspan=\"2\"><span style=\"text-align: center;\"><h4>Date:&nbsp;&nbsp;"+$("#single_date").val()+"</h4></span></td><td colspan=\"2\"><span style=\"text-align: center\"><h4>Department&nbsp;&nbsp;&nbsp;"+$("#single_dept").val()+"</h4></span></td><td colspan=\"2\"><span style=\"text-align: center;\"><h4>Leave Type:&nbsp;&nbsp;"+$("#single_type").val()+"</h4></span></td></tr><tr><th>S.No</th><th>Staff Name</th><th>Department</th><th>Designation</th><th>Leave Type</th><th>Purpose</th></tr>");				
+						
+						for(var i=0;i<result[0].length;i++){
+							$("#staff_content").append("<tr><td>"+(i+1)+"</td><td>"+result[1][i]+"</td><td>"+result[3][i]+"</td><td>"+result[4][i]+"</td><td>"+result[0][i]+"</td><td>"+result[2][i]+"</td></tr>");
+						}	
+						$("#staff_content").append("<tr><td colspan=\"5\"><h3 style=\"float: right;\">Total&nbsp;&nbsp;&nbsp;</h3></td><td><h3>"+i+"</h3></td></tr>");
+					}
+					
+					else{
+						$("#staff_content").html("<tr><td colspan=\"5\"><center><h1>No Data Available For Your Selection</h1></center></td></tr>");
+						$("#print,#export").hide();
+					}
+				},
+				error:function(result){
+					alert("Problem in Connection");
+				}
+			});
+		}
+		else alert("Please Provide All Details...");
+	});
+	
+	$("#more_submit").click(function(){
+		if($("#more_from").val()!="" && $("#more_to").val()!=""){
+			$("#print,#export").show();
+			$.ajax({
+				url:"phps/more_report.php",
+				data:{from:$("#more_from").val(),to:$("#more_to").val(),dept:$("#more_dept").val(),type:$("#more_type").val()},
+				type:"POST",
+				dataType:"json",
+				success:function(result){
+					$("#staff_content").show();
+					
+					if(result[0].length>0){
+						$("#staff_content").html("<tr><td colspan=\"100%;\"><span style=\"text-align: center;\"><h3>Cumulative Report</h4></span></td></tr><tr><td colspan=\"4\"><span style=\"text-align: center;\"><h4>From:&nbsp;&nbsp;"+$("#more_from").val()+"</h4></span></td><td colspan=\"4\"><span style=\"text-align: center\"><h4>To:&nbsp;&nbsp;&nbsp;"+$("#more_to").val()+"</h4></span></td></tr><tr><td colspan=\"4\"><span style=\"text-align: center;\"><h4>Leave Type:&nbsp;&nbsp;"+$("#more_type").val()+"</h4></span></td><td colspan=\"4\"><span style=\"text-align: center;\"><h4>Department:&nbsp;&nbsp;"+$("#more_dept").val()+"</h4></span></td></tr><tr><th>S.No</th><th>Staff Name</th><th>Department</th><th>Designation</th><th>Leave Type</th><th>From/On</th><th>To</th><th>Purpose</th></tr>");				
+						
+						for(var i=0;i<result[0].length;i++){
+							if(result[5][i]!=result[6][i])
+								$("#staff_content").append("<tr><td>"+(i+1)+"</td><td>"+result[1][i]+"</td><td>"+result[3][i]+"</td><td>"+result[4][i]+"</td><td>"+result[0][i]+"</td><td>"+result[5][i]+"</td><td>"+result[6][i]+"</td><td>"+result[2][i]+"</td></tr>");
+							else $("#staff_content").append("<tr><td>"+(i+1)+"</td><td>"+result[1][i]+"</td><td>"+result[3][i]+"</td><td>"+result[4][i]+"</td><td>"+result[0][i]+"</td><td>"+result[5][i]+"</td><td>-</td><td>"+result[2][i]+"</td></tr>");
+						}	
+						$("#staff_content").append("<tr><td colspan=\"7\"><h3 style=\"float: right;\">Total&nbsp;&nbsp;&nbsp;</h3></td><td><h3>"+i+"</h3></td></tr>");
+					}
+					
+					else{
+						$("#staff_content").html("<tr><td colspan=\"5\"><center><h1>No Data Available For Your Selection</h1></center></td></tr>");
+						$("#print,#export").hide();
+					}
+				},
+				error:function(result){
+					alert("Problem in Connection");
+				}
+			});
+		}
+		else alert("Please Provide All Details...");
+	});
+	
+	$("#history_submit").click(function(){
+		if($("#staff_id").val()!="" && $("#history_from").val()!="" && $("#history_to").val()!=""){
+			$("#print,#export").show();
+			$.ajax({
+				url:"phps/history_report.php",
+				data:{from:$("#history_from").val(),to:$("#history_to").val(),id:$("#staff_id").val(),type:$("#more_type").val()},
+				type:"POST",
+				dataType:"json",
+				success:function(result){
+					$("#staff_content").show();
+					
+					if(result[0].length>0){
+						$("#staff_content").html("<tr><td colspan=\"100%;\"><span style=\"text-align: center;\"><h3>Staff Leave History</h4></span></td></tr><tr><td colspan=\"2\"><span style=\"float: left; margin-left: 10px;\"><h4>Staff-Id:&nbsp;&nbsp;"+$("#staff_id").val()+"</h4></span></td><td colspan=\"3\"><span style=\"float: right; margin-right: 10px;\"><h4>Staff Name:&nbsp;&nbsp;&nbsp;"+result[1][0]+"</h4></span></td></tr><tr><td colspan=\"2\"><span style=\"float: left; margin-left: 10px;\"><h4>Department:&nbsp;&nbsp;"+result[3][0]+"</h4></span></td><td colspan=\"3\"><span style=\"float: right; margin-right: 10px;\"><h4>Designation:&nbsp;&nbsp;"+result[4][0]+"</h4></span></td></tr><tr><th>S.No</th><th>Leave Type</th><th>From/On</th><th>To</th><th>Purpose</th></tr>");					
+						
+						for(var i=0;i<result[0].length;i++){
+							if(result[5][i]!=result[6][i])
+								$("#staff_content").append("<tr><td>"+(i+1)+"</td><td>"+result[0][i]+"</td><td>"+result[5][i]+"</td><td>"+result[6][i]+"</td><td>"+result[2][i]+"</td></tr>");
+							else $("#staff_content").append("<tr><td>"+(i+1)+"</td><td>"+result[0][i]+"</td><td>"+result[5][i]+"</td><td>-</td><td>"+result[2][i]+"</td></tr>");
+						}	
+						$("#staff_content").append("<tr><td colspan=\"4\"><h3 style=\"float: right;\">Total&nbsp;&nbsp;&nbsp;</h3></td><td><h3>"+i+"</h3></td></tr>");
+					}
+					
+					else{
+						$("#staff_content").html("<tr><td colspan=\"5\"><center><h1>No Data Available For Your Selection</h1></center></td></tr>");
+						$("#print,#export").hide();
+					}
+				},
+				error:function(result){
+					alert("Problem in Connection");
+				}
+			});
+		}
+		else alert("Please Provide All Details...");
+	});
+	
+	$("#remaining_submit").click(function(){
+		var d=new Date();
+		var date=d.getFullYear()+"-"+d.getMonth()+"-"+d.getDate();
+		var lop=0;
+	
+		$("#staff_content").show();
+		
+		if($("#staff_rem").val()!=""){
+			$("#print,#export").show();
+			$.ajax({
+				url:"phps/remaining.php",
+				data:{user:$("#staff_rem").val(),type:"",today:date},
+				type:"POST",
+				dataType:"json",
+				success:function(result){
+					//alert(result);
+					$("#staff_content").html("<tr><td colspan=\"100%;\"><span style=\"text-align: center;\"><h3>Staff Leave Balance</h4></span></td></tr><tr><td colspan=\"3\"><span style=\"float: left; margin-left: 10px;\"><h4>Staff-Id:&nbsp;&nbsp;"+$("#staff_rem").val()+"</h4></span><span style=\"float: right; margin-right: 10px;\"><h4>Staff Name:&nbsp;&nbsp;&nbsp;"+result[3]+"</h4></span></td></tr><tr><td colspan=\"3\"><span style=\"float: left; margin-left: 10px;\"><h4>Department:&nbsp;&nbsp;"+result[4]+"</h4></span><span style=\"float: right; margin-right: 10px;\"><h4>Designation:&nbsp;&nbsp;&nbsp;"+result[5]+"</h4></span></td></tr><tr><th>S.No</th><th>Leave Type</th><th>Balance Number of Leaves</th></tr>");					
+					for(var i=0;i<result[0].length;i++){
+						if(parseInt(result[1][i][0].split("/")[0])>0)
+							$("#staff_content").append("<tr><td>"+(i+1)+"</td><td>"+result[0][i]+"</td><td>"+result[1][i][0].split("/")[0]+"</td></tr>");
+						else{
+							$("#staff_content").append("<tr><td>"+(i+1)+"</td><td>"+result[0][i]+"</td><td>0</td></tr>");
+							lop=lop-(result[1][i][0].split("/")[0]);
+						}
+						
+					}
+					
+					$("#staff_content").append("<tr><td>"+(i+1)+"</td><td>Number of LOPs Taken</td><td>"+lop+"</td></tr>");
+					
+					
+		
+				},
+				error:function(result){
+					alert("Problem in Connection");
+				}
+			});
+		}
+		else alert("Please Provide All Details...");
+	});
+	
+	$("#lop_submit").click(function(){
+		if($("#lop_from").val()!="" && $("#lop_to").val()!=""){
+			var de=$("#lop_dept").val();
+			
+			$("#print,#export").show();
+			$.ajax({
+				url:"phps/lop_report.php",
+				data:{from:$("#lop_from").val(),to:$("#lop_to").val(),duig:de},
+				type:"POST",
+				dataType:"json",
+				success:function(result){
+					
+					$("#staff_content").show();
+					var main_months=[];
+					
+					if(result[2].length>0){
+						var t="<tr><td colspan=\"100%;\"><span style=\"text-align: center;\"><h3>LOP Report</h4></span></td></tr><tr><td colspan=\"100%\"><span style=\"float: left; margin-left: 10px;\"><h4>Date range:&nbsp;&nbsp;("+$("#lop_from").val()+")-("+$("#lop_to").val()+")</h4></span><span style=\"float: right; margin-right: 10px;\"><h4>Department:&nbsp;&nbsp;&nbsp;"+$("#lop_dept").val()+"</h4></span></td></tr><tr><th>S.No</th><th>Staff Name</th><th>Department</th>";
+
+						var monthNames = [ "January", "February", "March", "April", "May", "June","July", "August", "September", "October", "November", "December" ];
+						var from=new Date($("#lop_from").val());
+						var to=new Date($("#lop_to").val());
+						var f_month=from.getMonth();
+						var t_month=to.getMonth();
+						
+						var total=(t_month-f_month)+1;
+						
+						for(var j=f_month;j<=t_month;j++){
+							t+="<th>"+monthNames[j]+"</th>";
+							main_months.push(monthNames[j]);
+						}
+						t+="</tr>"
+
+						$("#print,#export").show();
+						$("#staff_content").html(t);				
+						var i=0;
+						
+						for(i=0;i<result[0].length;i++){
+							
+							var y="<tr><td>"+(i+1)+"</td><td>"+result[0][i]+"</td><td>"+result[1][i]+"</td>";
+							
+							for(var j=0;j<main_months.length;j++){
+								
+								for(var k=0;k<result[4][i].split("//").length;k++){
+									if(result[3][i].split("//")[k]==main_months[j]){
+										y+="<td>"+result[4][i].split("//")[k]+"</td>";
+										break;
+									}
+								}	
+								if(k==result[4][i].split("//").length)						
+									y+="<td>0</td>";
+							}							
+							y+="</tr>";
+								
+							$("#staff_content").append(y);
+						
+						}
+						$("#staff_content").append("<tr><td colspan=\"3\"><h3 style=\"float: right;\">Total&nbsp;&nbsp;&nbsp;</h3></td><td colspan=\"100%\"><h3>"+(i)+"</h3></td></tr>");	
+					}
+					
+					
+					else{
+						$("#staff_content").html("<tr><td colspan=\"5\"><center><h1>No Data Available For Your Selection</h1></center></td></tr>");
+						$("#print,#export").hide();
+					}
+				},
+				error:function(result){
+					alert("Problem in Connection");
+				}
+			});
+		}
+		else alert("Please Provide All Details...");
+	});
+	
+	$("#day").click(function(){
+		$("input[type=text],input[type=date]").val("");
+		$("select").find("option:eq(0)").prop("selected",true);
+		$("#staff_content").hide();
+		$(this).css("border-bottom","2px solid #1da5ee");
+		$("#cumulative,#his,#balance,#lop").css("border-bottom","");
+		$("#single").show();
+		$("#more,#history,#remaining,#lop_report").hide();
+		$("#print,#export").hide();
+	});
+	
+	$("#cumulative").click(function(){
+		$("input[type=text],input[type=date]").val("");
+		$("select").find("option:eq(0)").prop("selected",true);
+		$("#staff_content").hide();
+		$(this).css("border-bottom","2px solid #1da5ee");
+		$("#day,#his,#balance,#lop").css("border-bottom","");
+		$("#more").show();
+		$("#single,#history,#remaining,#lop_report").hide();
+		$("#print,#export").hide();
+	});
+	
+	$("#his").click(function(){
+		$("input[type=text],input[type=date]").val("");
+		$("select").find("option:eq(0)").prop("selected",true);
+		$("#staff_content").hide();
+		$(this).css("border-bottom","2px solid #1da5ee");
+		$("#cumulative,#day,#balance,#lop").css("border-bottom","");
+		$("#history").show();
+		$("#more,#single,#remaining,#lop_report").hide();
+		$("#print,#export").hide();
+	});
+	
+	$("#balance").click(function(){
+
+		$("input[type=text],input[type=date]").val("");
+		$("select").find("option:eq(0)").prop("selected",true);
+		$("#staff_content").hide();
+		$(this).css("border-bottom","2px solid #1da5ee");
+		$("#cumulative,#his,#day,#lop").css("border-bottom","");
+		$("#remaining").show();
+		$("#more,#history,#single,#lop_report").hide();
+		$("#print,#export").hide();
+	});
+
+	$("#lop").click(function(){
+		
+		$("input[type=text],input[type=date]").val("");
+		$("select").find("option:eq(0)").prop("selected",true);
+		$("#staff_content").hide();
+		$(this).css("border-bottom","2px solid #1da5ee");
+		$("#cumulative,#his,#day,#balance").css("border-bottom","");
+		$("#lop_report").show();
+		$("#more,#history,#single,#remaining").hide();
+		$("#print,#export").hide();
+	});
+	
+	$("#export").click(function(){
+		tableToExcel('staffs1', 'SKCET');
+	});
+
+	/*$.ajax({
+		url:"phps/check_login.php",
+		data:{user:$("#leave_user").val(),pass:$("#leave_pass").val()},
+		type:"POST",
+		dataType:"json",
+		success:function(result){
+			if(result[0]=="Success"){
+				if(result[1]=="admin"){
+					var user=$("#leave_user").val()+"/"+result[1];
+					$.cookie('loged', user , { expires: 1 });
+					window.location.assign("leave_admin_home.html");
+				}
+			}
+			else alert(result[1]);
+		},
+		error:function(result){
+			alert("Problem in Connection");
+		}
+	});*/
+  });
+  </script>
+  
+  <script type="text/javascript">
+
+    function PrintElem(elem)
+    {
+		
+		$("#hide_head,#hide_foot").show();
+        Popup($(elem).html());
+		$("#hide_head,#hide_foot").hide();
+    }
+
+    function Popup(data) 
+    {
+		
+        var mywindow = window.open('', 'my div');
+        mywindow.document.write('<html><head>');
+		mywindow.document.write('<style>table{border: 5px #FFFFFF; text-align: center;} body{} div{}</style>');
+        /*optional stylesheet //mywindow.document.write('<link rel="stylesheet" href="css/print.css" type="text/css" />');*/
+        mywindow.document.write('</head><body>');
+        mywindow.document.write("<table><div>"+data+"</div></table>");
+        mywindow.document.write('</body></html>');
+
+        mywindow.print();
+        mywindow.close();
+
+        return true;
+    }
+
+  </script>
+</head>
+<body>
+	<div class="main-out">
+		<div class="main">
+			<div class="page">
+				<div class="top">
+					<div class="header">
+						<div class="header-top">
+							<h1><span>SKCET Leave Management System</span></h1>
+							<p><img id="logo" width="100" height="80" style="mar"/></p>
+						</div>
+						<div class="topmenu">
+                            <ul>
+                              <li><a href="leave_admin_home.html">Home</a></li>
+                               <li><a href="leave_admin_personal.html">My Profile</a></li>
+                              <li><a href="leave_admin_staff.html">Staff Entry</a></li>
+                              <li><a href="leave_admin_holiday.html">Holiday Entry</a></li>
+                              <li><a href="leave_admin_leave.html">Leave Entry</a></li>
+                              <li><a href="#">Leave Report</a></li>
+                              <li><a href="leave_admin_about.html">About</a></li>
+                            </ul>
+						</div>
+						<!--<div class="header-img">
+							<h2>Slogan goes here</h2>
+						</div>-->
+					</div>
+					<div class="content">
+						<div class="content-left" style="min-height:400px;">
+							<center>
+                            	<h1 style="margin-bottom: 10px;">Reports</h1>
+                            </center>
+                            
+                            
+                            <span style="margin-left: 20px; margin-right: 20px; font-size:16px; margin-bottom: 55px; "><strong><a id="day" style="border-bottom: 2px solid #1da5ee;">Daywise</a></strong></span>|<span style="margin-left: 20px; margin-right: 20px; font-size:16px;"><strong><a id="cumulative">Cumulative</a></strong></span>|<span style="margin-left: 20px; margin-right: 20px; font-size:16px;"><strong><a id="his">Leave History</a></strong></span>|<span style="margin-left: 20px; margin-right: 20px; font-size:16px;"><strong><a id="balance">Leave Balance</a></strong></span>|<span style="margin-left: 20px; margin-right: 20px; font-size:16px;"><strong><a id="lop">LOP Report</a></strong></span>
+                            
+                            <center>    
+                                <div id="single">
+                                <h2 style="margin-top: 20px;">Daywise Report</h2>
+                            	<fieldset style="width: 90%"><legend>Give Required Details</legend>
+                                	<table>
+                                    	<tr><td>Date&nbsp;&nbsp;&nbsp; <input type="date" id="single_date" style="width:150px; margin-right:30px;" /></td><td>Department&nbsp;&nbsp;&nbsp; <select id="single_dept" style="width:150px; margin-right: 30px;">
+                                        <option>All</option>
+                                        
+                                        <script>
+											$.ajax({
+												url:"phps/get_dept.php",
+												data:{},
+												type:"POST",
+												dataType:"json",
+												success:function(result){
+													
+													for(var i=0;i<result.length;i++){
+														$("#single_dept").append("<option>"+result[i]+"</option>");
+													}
+												},
+												error:function(result){
+													alert("Problem in Connection");
+												}
+											});
+										</script>
+                                    </select></td>
+                                    <td>Leave Type&nbsp;&nbsp;&nbsp; <select id="single_type" style="width: 150px; margin-right: 30px;">
+                                    	<option>All</option>
+                                        
+                                        <script>
+											$.ajax({
+												url:"phps/get_leave.php",
+												data:{},
+												type:"POST",
+												dataType:"json",
+												success:function(result2){
+													for(var i=0;i<result2.length;i++){
+														$("#single_type,#more_type,#history_type").append("<option>"+result2[i]+"</option>");
+													}
+												},
+												error:function(result){
+													alert("Problem in Connection");
+												}
+											});
+										</script>
+                                    </select></td>
+                                    <td><button id="single_submit" style="margin-top: 10px;">Submit</button></td></tr>
+                                    </table>
+                                </fieldset>
+                                </div>
+                                
+                                 <div id="more">
+                                  <h2 style="margin-top: 20px;">Cumulative Report</h2>
+                            	<fieldset style="width: 90%"><legend>Give Required Details</legend>
+                                	<table>
+                                    	<tr><td>From&nbsp;&nbsp;&nbsp; <input type="date" id="more_from" style="width:130px; margin-right:30px; margin-left: 10px;" /></td><td>To&nbsp;&nbsp;&nbsp; <input type="date" id="more_to" style="width:130px; margin-right:30px;margin-left: 10px;" /></td><td>Select Department&nbsp;&nbsp;&nbsp; <select id="more_dept" style="width:100px; margin-right: 30px;margin-left: 10px;">
+                                        <option>All</option>
+                                        
+                                        <script>
+											$.ajax({
+												url:"phps/get_dept.php",
+												data:{},
+												type:"POST",
+												dataType:"json",
+												success:function(result){
+													for(var i=0;i<result.length;i++){
+														$("#more_dept").append("<option>"+result[i]+"</option>");
+													}
+												},
+												error:function(result){
+													alert("Problem in Connection");
+												}
+											});
+										</script>
+                                    </select></td>
+                                    <td>Leave Type&nbsp;&nbsp;&nbsp; <select id="more_type" style="width: 100px; margin-right: 30px;">
+                                    	<option>All</option>
+                                        
+                                       
+                                    </select></td>
+                                    <td><button id="more_submit" style="margin-top: 10px;">Submit</button></td></tr>
+                                    </table>
+                                </fieldset>
+                                </div>
+                                
+                                <div id="history">
+                                <h2 style="margin-top: 20px;">Staff Leave History</h2>
+                            	<fieldset style="width: 90%"><legend>Give Staff Details</legend>
+                                	<table>
+                                    	<tr><td>Staff - ID&nbsp;&nbsp;&nbsp; <input type="text" id="staff_id" style="width:100px; margin-right:30px; margin-left: 10px;" /></td>
+                                        <td>Leave Type&nbsp;&nbsp;&nbsp; <select id="history_type" style="width: 100px; margin-right: 30px;">
+                                    	<option>All</option>
+                                        
+                                       
+                                    	</select></td>
+                                        
+                                        <td>From&nbsp;&nbsp;&nbsp; <input type="date" id="history_from" style="width:130px; margin-right:30px; margin-left: 10px;" /></td><td>To&nbsp;&nbsp;&nbsp; <input type="date" id="history_to" style="width:130px; margin-right:30px;margin-left: 10px;" /></td>
+                                        
+                                        <td><button id="history_submit" style="margin-top: 10px;">Submit</button></td></tr>
+                                    </table>
+                                </fieldset>
+                                </div>
+                                
+                                <div id="remaining">
+                                 <h2 style="margin-top: 20px;">Staff Leave Balance</h2>
+                            	<fieldset style="width: 90%"><legend>Give Staff Details</legend>
+                                	<table>
+                                    	<tr><td>Staff - ID&nbsp;&nbsp;&nbsp; <input type="text" id="staff_rem" style="width:150px; margin-right:30px; margin-left: 10px;" /></td><td><button id="remaining_submit" style="margin-top: 10px;">Submit</button></td></tr>
+                                    </table>
+                                </fieldset>
+                                </div>
+                                
+                                <div id="lop_report">
+                                  <h2 style="margin-top: 20px;">LOP Report</h2>
+                            	  <fieldset style="width: 90%"><legend>Give Required Details</legend>
+									<table>
+                                    	<tr><td>From&nbsp;&nbsp;&nbsp; <input type="date" id="lop_from" style="width:130px; margin-right:30px; margin-left: 10px;" /></td><td>To&nbsp;&nbsp;&nbsp; <input type="date" id="lop_to" style="width:130px; margin-right:30px;margin-left: 10px;" /></td><td>Department&nbsp;&nbsp;&nbsp; <select id="lop_dept" style="width:130px; margin-right: 30px;margin-left: 10px;">
+                                        <option>All</option>
+                                        
+                                        <script>
+											$.ajax({
+												url:"phps/get_dept.php",
+												data:{},
+												type:"POST",
+												dataType:"json",
+												success:function(result){
+													for(var i=0;i<result.length;i++){
+														$("#lop_dept").append("<option>"+result[i]+"</option>");
+													}
+												},
+												error:function(result){
+													alert("Problem in Connection");
+												}
+											});
+										</script>
+                                    </select></td>
+                                    	<td><button id="lop_submit" style="margin-top: 10px;">Submit</button></td></tr>
+                                    </table>
+                                </fieldset>
+                              </div>
+                                
+                                <div class="printable_content">
+                                <table id="staffs1" style="width: 100%; border-bottom: 0px;"><tr><td colspan="90%">
+                                <center><span id="hide_head"><h1>Sri Krishna College of Engineering and Technology</h1><br/>
+                                </span></center>
+                                <table id="staff_content" style=" margin-bottom:0px;margin-top: 10px; width: 100%; text-align:center; border-collapse:collapse;" border="1">
+                                
+                                </table><br/>
+                                <br/>
+                                <span style="text-align:right; margin-top: 100px;" id="hide_foot">
+                                    <footer style="margin-top: 50px;"><b>Principal</b></footer>
+                                </span>
+                                </td></tr></table>
+                                </div>
+                                
+                                <button onClick="PrintElem('.printable_content');" style="margin-top: 10px;" id="print">Print</button>
+                                <button style="margin-top: 10px; margin-left: 10px;" id="export">Export</button>
+                            </center>
+                            <!--<div class="row1">
+								<!--<div class="img"><img src="images/img1.jpg" alt="" height="101" width="157"></div>
+								<div class="welcome">
+                                       <h1 class="title">Welcome to <span>SKCET Leave Management System</span></h1>
+                                       
+                                       <p><strong>Leave Management Portal is the website developed only for SKCET staffs.</strong><br><p>&nbsp;</p>
+                                       SKCET Leave Management Portal is highly aimed to reduce the paper work for the staffs to apply leave.
+                                       Staffs can apply leave directly from this Leave Management System. The applied leave will be automatically 									   forwarded to the higher officials for the leave approval. Staffs can also allocate other staffs for their 										classes. </p>
+								</div>
+							</div>
+							<!--<div class="row2">
+								<div class="section1">
+                                       <h2 class="subtitle">What&#8217;s New</h2>
+                                       <p><strong>Lorem Ipsum is simply dummy text of the<br>
+                                       printing and typesetting industry.</strong><br>
+                                       Lorem Ipsum has been the industry's standard<br>
+                                       dummy text ever since the 1500s, when an<br>
+                                       unknown printer took a galley of type and</p>
+                                       <p>&nbsp;</p>
+                                       <p>&nbsp;</p>
+                                       <p><a href="#" class="more">read more</a></p>
+								</div>
+								<div class="section2">
+                            	    <h2 class="subtitle">Resources</h2>
+                                    <p><strong>Lorem Ipsum is simply dummy text of the printing and
+                                    typesetting industry.</strong><br>
+                                    Lorem Ipsum has been the industry's standard dummy text ever since the
+                                    1500s, when an unknown printer took a galley of type and scrambled it
+                                    to make a type specimen book. It has survived not only five centuries,
+                                     but</p>
+                                     <p>&nbsp;</p>
+                                    <p><a href="#" class="more">read more</a></p>
+								</div>
+							</div>-->
+						</div>
+						<div class="content-right login">
+                               <center><h2>Welcome</h2></center>
+                               		<!--<ul>
+                               		<li><p>User Name&nbsp;&nbsp; <input type="text" placeholder="User Name" id="leave_user"/></p></li>
+                                    <li><p style="margin-top: 10px;">Password&nbsp;&nbsp; <input type="password" placeholder="Password" id="leave_pass"/></p></li>
+                                    <li><p style="margin-top: 10px; margin-bottom: 10px"><button id="log">Login</button><button id="forgot">Forgot Password</button></p></li>
+                                    </ul>-->
+                                <!--<ul>
+                                  <li style="border-top: medium none;"><a href="#">Link 1</a></li>
+                                  <li><a href="#">Link 2</a></li>
+                                  <li><a href="#">Link 3</a></li>
+                                  <li><a href="#">Link 4</a></li>
+                                  
+
+                                </ul>
+                                <p>&nbsp;</p>
+                                <p>&nbsp;</p>
+                                <p>&nbsp;</p>-->
+						</div>
+                        
+                        
+					</div>
+				</div>
+				<div class="bottom">
+                        <ul>
+                          <li style="border-left: medium none;"><a href="leave_admin_home.html">Home</a></li>
+                          <li><a href="leave_admin_personal.html">My &nbsp;Profile</a></li>
+                          <li><a href="leave_admin_staff.html">Staff&nbsp;Entry</a></li>
+                          <li><a href="leave_admin_holiday.html">Holiday&nbsp;Entry</a></li>
+                          <li><a href="leave_admin_leave.html">Leave&nbsp;Entry</a></li>
+                          <li><a href="leave_admin_report.html">Leave&nbsp;Report</a></li>
+                          <li><a href="leave_admin_about.html">About</a></li>
+                        </ul>
+                        
+                        <!--DO NOT Remove The Footer Links-->
+                        <p>&copy; Designed by <a>Arunkumar.B(BE CSE (2012 Batch) SKCET</a></p>
+                        
+                        <img src="images/footnote.gif" class="copyright" alt="HTML Templates"></a>
+				</div>
+<!--DO NOT Remove The Footer Links-->
+			</div>
+		</div>
+	</div>
+	
+</body>
+</html>

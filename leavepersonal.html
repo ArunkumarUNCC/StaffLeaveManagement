@@ -1,0 +1,277 @@
+ <!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Leave Management Home</title>
+  <meta name="description" content="Description of your site goes here">
+  <meta name="keywords" content="keyword1, keyword2, keyword3">
+  <link href="css/style.css" rel="stylesheet" type="text/css">
+  <script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
+  <script type="text/javascript" src="js/jquery.cookie.js"></script>
+  <script type="text/javascript">
+  $(window).load(function(){
+	$("#staff_id2").hide();
+	$("#leave_report").hide();
+	if($.cookie("loged")){
+		var d=new Date();
+		var date=d.getFullYear()+"-"+d.getMonth()+"-"+d.getDate();
+		var lop=0;
+		
+		$(".login").append("<ul><li>Staff-Id:&nbsp;&nbsp;"+$.cookie("loged").split("/")[0]+"</li><li>Staff-Name:&nbsp;&nbsp;"+$.cookie("loged").split("/")[2]+"</li><li>Staff-Type:&nbsp;&nbsp;"+$.cookie("loged").split("/")[1]+"</li><li><button class=\"logout\"><a>Logout</a></button><button class=\"edit_profile\"><a href=\"leavepersonal.html\">Edit Profile</a></button></li></ul>");
+	}
+	else window.location.assign("leavehome.html");
+
+	$(".logout").click(function(){
+		$.removeCookie("loged");
+		window.location.assign("leavehome.html");
+	});
+	
+	if($.cookie("loged").split("//")[1]!="")
+		$("#logo").attr("src",$.cookie("loged").split("//")[1]);
+	else $("#logo").attr("src","phps/images/photos/user_icon.png");
+	
+	if($.cookie("loged").split("/")[1]=="Principal"){
+		$("#leave_report").show();
+		$("#apply_leave,#leave_status,#cancel_leave,#staff_id2").hide();
+		$(".content-right:not('.login')").hide();
+	}
+
+	
+		$.ajax({
+			url:"phps/edit_personal.php",
+			data:{id:$.cookie("loged").split("/")[0],flag:"1",mail:"",contact:"",password:""},
+			type:"POST",
+			dataType:"json",
+			success:function(result){
+				$("#staff_id,#staff_id2").val(result[0]);
+				$("#staff_name").val(result[1]);
+				$("#staff_type").val(result[2]);
+				$("#department").val(result[3]);
+				$("#designation").val(result[4]);
+				$("#doj").val(result[5]);
+				$("#staff_mail").val(result[6]);
+				$("#staff_contact").val(result[7]);
+				$("#staff_user").val(result[8]);
+				
+				if($.cookie("loged").split("/")[1]!="Principal"){
+					$.ajax({
+						url:"phps/remaining.php",
+						data:{user:$.cookie("loged").split("/")[0],type:$.cookie("loged").split("/")[1],today:date},
+						type:"POST",
+						dataType:"json",
+						success:function(result){
+							for(var i=0;i<result[0].length;i++){
+								if(parseInt(result[1][i][0].split("/")[0])>0)
+									$("#remaining_leave").append("<tr><td>"+result[0][i]+"</td><td><center><strong>"+result[1][i][0].split("/")[0]+"</strong></center></td></tr>");
+								else{
+									$("#remaining_leave").append("<tr><td>"+result[0][i]+"</td><td><center><strong>0</center></strong></td></tr>");
+									lop=lop-(result[1][i][0].split("/")[0]);
+								}
+							}
+				
+							$(".lop").append("<center><strong>"+lop+"</center></strong>");
+				
+						},
+						error:function(result){
+							alert("Problem in Connection");
+						}
+					});
+				}
+			},
+			error:function(result){
+				alert("Problem in Connection");
+			}
+		});
+
+	/*$("#single_submit").click(function(){
+		if($("#staff_pass").val()==""){
+			if($("#staff_mail").val() && $("#staff_contact").val()){
+				$.ajax({
+					url:"phps/edit_personal.php",
+					data:{id:$.cookie("loged").split("/")[0],mail:$("#staff_mail").val(),contact:$("#staff_contact").val(),flag:"2",password:""},
+					type:"POST",
+					dataType:"json",
+					success:function(result){
+						alert("Your Profile Updated Successfully");
+					},
+					error:function(result){
+						alert("Problem in Connection");
+					}
+				});
+			}
+			else alert("Please Provide All Details...");
+		}
+		
+		else if($("#staff_pass").val()!=""){
+			if(confirm("Do you surely want to update your password???")){
+				if($("#staff_mail").val() && $("#staff_contact").val()){
+					$.ajax({
+						url:"phps/edit_personal.php",
+						data:{id:$.cookie("loged").split("/")[0],mail:$("#staff_mail").val(),contact:$("#staff_contact").val(),password:$("#staff_pass").val(),flag:"3"},
+						type:"POST",
+						dataType:"json",
+						success:function(result){
+							alert("Your Profile Updated Successfully");
+						},
+						error:function(result){
+							alert("Problem in Connection");
+						}
+					});
+				}
+				else alert("Please Provide All Details...");
+			}
+		}
+	});*/
+
+  });
+  
+  function isNumber(evt) {
+    evt = (evt) ? evt : window.event;
+    var charCode = (evt.which) ? evt.which : evt.keyCode;
+    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+        return false;
+    }
+    return true;
+  }
+  </script>
+  
+<style>
+table tr{
+	height: 30px;
+}
+
+table tr td{
+	width: 50%;
+}
+</style>
+</head>
+<body>
+	<div class="main-out">
+		<div class="main">
+			<div class="page">
+				<div class="top">
+					<div class="header">
+						<div class="header-top">
+							<h1><span>SKCET Leave Management System</span></h1>
+							<p><img id="logo" width="100" height="80" style="mar"/></p>
+						</div>
+						<div class="topmenu">
+                            <ul>
+                              <li><a href="leave_staff_home.html">Home</a></li>
+                               <li><a href="#">My Profile</a></li>
+                              <li id="apply_leave"><a href="leave_staff_apply.html">Apply Leave</a></li>
+                              <li id="leave_status"><a href="leave_staff_status.html">Leave Status</a></li>
+                              <li><a href="leave_staff_approve.html">Approvals</a></li>
+                              <li id="cancel_leave"><a href="leave_staff_cancel.html">Cancel Leave</a></li>
+                           	  <li><a href="leaveholidays.html">Holiday Wizard</a></li>
+                              <li id="leave_report"><a href="leavereport.html">Report</a></li>
+                               <li><a href="leave_staff_about.html">About</a></li>
+                            </ul>
+						</div>
+						<!--<div class="header-img">
+							<h2>Slogan goes here</h2>
+						</div>-->
+					</div>
+					<div class="content">
+                    	
+						<div class="content-left" style="min-height:400px; margin-top: 5px;">
+                        
+                           	<center>
+                            	<div id="add_div" style="margin-top: 10px;">
+                                    <h1>My Profile</h1>
+                                    
+                                    <div style="width: 90%; ">
+                                    <form action="phps/update_personal.php" method="post">
+                                    <input type="text" id="staff_id2" name="staff_id2" />
+                                    <fieldset style="margin-top: 20px;width: 90%; background-color:#FFFFFF"><legend style="margin-left: -100px;">Personal Details</legend>
+                                     
+                                    <table style="font-size:16px;">
+                                        <tr><td>Staff Name</td><td><input type="text" disabled id="staff_name" name="staff_name" /></td></tr>
+                                        <tr><td>Staff Id</td><td><input type="text" disabled id="staff_id" name="staff_id" /></td></tr>
+                                      	<tr><td>Staff Type</td><td><input type="text" disabled id="staff_type" name="staff_type" />
+                                        </td></tr>
+                                        <tr><td>Designation</td><td><input type="text" disabled id="designation" name="designation" /></td></tr>
+                                        <tr><td>Department</td><td><input type="text" disabled id="department" name="department" /></td></tr>
+                                        <tr><td>Date of Joining</td><td><input type="text" disabled id="doj" name="doj" /></td></tr>
+                                        <tr><td>Mail-Id</td><td> <input type="text" id="staff_mail" name="staff_mail" placeholder="arunb@skcet.ac.in" required/></td></tr>
+                                        <tr><td>Staff Contact</td><td> <input type="text" id="staff_contact" name="staff_contact" onKeyPress="return isNumber(event)" placeholder="7708920081" maxlength="10" required /></td></tr>	
+                                        <tr><td>Staff Photo</td><td><input type="file" style=" border: 1px solid #CCCCCC" id="staff_photo" name="staff_photo" /></td></tr>
+									</table>
+                                    
+                                    </fieldset>
+                                    
+                                    <fieldset style="margin-top: 20px;width: 90%; background-color:#FFFFFF"><legend style="margin-left: -100px;">Login Details</legend>
+                                    <table style="font-size:16px;">
+                                        <tr><td>User Name</td><td><input type="text" id="staff_user" name="staff_user" disabled/></td></tr>
+                                        <tr><td>Password</td><td><input type="text" id="staff_pass" name="staff_pass"/></td></tr>
+                                    </table>
+                                    </fieldset>
+                                    
+                                    <center><button id="single_submit" style="margin-top: 10px;">Submit</button></center>
+									</form>
+                                    
+                                    <script src="js/malsup.js"></script>
+									<script>
+                                        (function() {
+                    
+                     
+                                            $('form').ajaxForm({
+                        
+                                                success: function(data) {
+                                                    alert("Your profile updated successfully...");
+													location.reload();
+                                                    
+                                                }
+                                            });
+                                        })();
+                                    </script>
+                                   </div>
+                               </div>
+ 
+                            </center>
+
+						</div>
+						<div class="content-right login">
+                               <center><h2>Welcome</h2></center>
+
+						</div>
+                        
+                        <div class="content-right" style="margin-top: 10px;">
+                        	<center><h3 style="margin-top: 5px;">Remaining Leave</h3></center>
+                            
+                            <table id="remaining_leave" style="width: 100%; margin-left: 20px;">
+                            
+                            </table>
+                        </div>
+                        
+                        <div class="content-right lop" style="margin-top: 10px; ">
+                        	<center><h3 style="margin-top: 5px; margin-bottom: 10px;">LOP Taken</h3></center>
+                            
+
+                        </div>
+					</div>
+				</div>
+				<div class="bottom">
+                        <ul>
+                          <li style="border-left: medium none;"><a href="leave_staff_home.html">Home</a></li>
+                          <li><a href="leavepersonal.html">My &nbsp;Profile</a></li>
+                          <li><a href="leave_staff_apply.html">Apply&nbsp;Leave</a></li>
+                          <li><a href="leave_staff_status.html">Leave&nbsp;Status</a></li>
+                          <li><a href="leave_staff_approve.html">Leave&nbsp;Approvals</a></li>
+                          <li><a href="leave_staff_cancel.html">Cancel&nbsp;Leave</a></li>
+                          <li><a href="leaveholidays.html">Holidays</a></li>
+                          <li><a href="leave_staff_about.html">About</a></li>
+                        </ul>
+                        
+                        <!--DO NOT Remove The Footer Links-->
+                        <p>&copy; Designed by <a>Arunkumar.B(BE CSE (2012 Batch) SKCET</a></p>
+                        
+                        <img src="images/footnote.gif" class="copyright" alt="HTML Templates"></a>
+				</div>
+<!--DO NOT Remove The Footer Links-->
+			</div>
+		</div>
+	</div>
+	
+</body>
+</html>
