@@ -55,7 +55,7 @@
 				success:function(result){
 					for(var i=0;i<result[0].length;i++){
 						if(parseInt(result[1][i][0].split("/")[0])>0)
-							$("#remaining_leave").append("<tr><td>"+result[0][i]+"</td><td><center><strong>"+result[1][i][0].split("/")[0]+"</strong></center></td></tr>");
+							$("#remaining_leave").append("<tr><td>"+result[0][i]+"</td><td><center><strong>"+result[1][i].split("/")[0]+"</strong></center></td></tr>");
 						else{
 							$("#remaining_leave").append("<tr><td>"+result[0][i]+"</td><td>0</td></tr>");
 							lop=lop-(result[1][i][0].split("/")[0]);

@@ -12,7 +12,7 @@
 	mysql_select_db("$db_name",$connect_id) or die("NoDatabase");
 	
 	$check=mysql_query("SELECT `staff_type`,`staff_name`,`photo` FROM $tb_name WHERE `user_name`='$user_name' AND `password`='$password'");
-	
+		
 	if(mysql_num_rows($check)>=1){
 		while($row=mysql_fetch_array($check)){
 			$type=$row[0];
@@ -22,6 +22,7 @@
 		
 		
 		echo json_encode(array("Success",$type,$name,$path));
+		//echo json_encode("Hello");
 
 	}
 	else echo json_encode(array("Failure","Invalid Username or Password"));

@@ -21,6 +21,7 @@
 	$staff_name="";
 	$staff_dept="";
 	$staff_desig="";
+	$lop="";
 	
 	$get_type=mysql_query("SELECT `staff_type`,`staff_name`,`department`,`designation` FROM `leave_users` WHERE `staff_id`='$id'");
 	
