@@ -32,9 +32,11 @@
 			if(date("w",strtotime($begin->format("Y-m-d")))>0){
 				$check=mysql_query("SELECT * FROM `holidays` WHERE `day`='".$begin->format('Y-m-d')."' OR `end`='".$begin->format('Y-m-d')."' OR '".$begin->format('Y-m-d')."' BETWEEN `day` AND `end`");
 				if(mysql_num_rows($check)==0){
-					if($from_ses=="fd")
-						mysql_query("INSERT INTO $tb_name VALUES('$id','$from','$from_ses','$type','Approved','','','Pending','Pending','$purpose','$submit_date','1','','','')");
-					else mysql_query("INSERT INTO $tb_name VALUES('$id','$from','$from_ses','$type','Approved','','','Pending','Pending','$purpose','$submit_date','0.5','','','')");
+					if($from_ses=="fd"){
+						mysql_query("INSERT INTO `$tb_name` VALUES('$id','$from','$from_ses','$type','Approved','','','Pending','Pending','$purpose','$submit_date','1','','','','','')");
+						//$temp = "Working Good";
+					}
+					else mysql_query("INSERT INTO `$tb_name` VALUES('$id','$from','$from_ses','$type','Approved','','','Pending','Pending','$purpose','$submit_date','0.5','','','','','')");
 					
 					
 					$final_date=$from;
@@ -78,7 +80,7 @@
 			$final_date=implode(",",$dates);
 			
 			if(sizeof($final_date)>0)
-				mysql_query("INSERT INTO $tb_name VALUES('$id','$final_date','$final_ses','$type','Approved','','','Pending','Pending','$purpose','$submit_date','$total','','','')");
+				mysql_query("INSERT INTO $tb_name VALUES('$id','$final_date','$final_ses','$type','Approved','','','Pending','Pending','$purpose','$submit_date','$total','','','','','')");
 				
 			echo json_encode("Updation Success");
 		}

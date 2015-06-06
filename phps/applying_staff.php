@@ -36,7 +36,7 @@
 						$final_staff[$count]=$staff_ids[$count]."-Pending";
 					}
 					$get_final_staff=implode(",",$final_staff);
-					mysql_query("UPDATE $tb_name SET `staff`='$get_final_staff',`periods`='$period',`classes`='$class',`subjects`='$subject',`alternate_dates`='$alternate_date' WHERE `staff_id`='$id' AND `dates`='$from' AND `sessions`='$from_ses'");	
+					mysql_query("UPDATE `$tb_name` SET `staff`='$get_final_staff',`periods`='$period',`classes`='$class',`subjects`='$subject',`alternate_dates`='$alternate_date' WHERE `staff_id`='$id' AND `dates`='$from' AND `sessions`='$from_ses'");	
 				}
 				echo json_encode("Staff Alterations Made Successfully");
 			}
