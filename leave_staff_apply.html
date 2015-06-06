@@ -24,11 +24,11 @@
 		$("#logo").attr("src",$.cookie("loged").split("//")[1]);
 	else $("#logo").attr("src","phps/images/photos/user_icon.png");
 	}
-	else window.location.assign("leavehome.html");
+	else window.location.assign("index.html");
 
 	$(".logout").click(function(){
 		$.removeCookie("loged");
-		window.location.assign("leavehome.html");
+		window.location.assign("index.html");
 		
 	});
 
@@ -64,6 +64,8 @@
 					leave_names[i]="LOP";
 					leave_counts[i]=result[2];
 					
+					if(result[2]=="")
+						result[2]="0";
 					$(".lop").append("<center><strong>"+result[2]+"</center></strong>");
 			
 				},
@@ -734,7 +736,7 @@ table tr td input{
                             </table>
                         </div>
                         
-                        <div class="content-right lop" style="margin-top: 10px; margin-bottom: 10px;">
+                        <div class="content-right lop" style="margin-top: 10px; margin-bottom: 10px;" class="lop">
                         	<center><h3 style="margin-top: 5px;">LOP Taken</h3></center>
                             
 

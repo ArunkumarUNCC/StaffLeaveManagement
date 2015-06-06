@@ -19,11 +19,11 @@
 		
 		$(".login").append("<ul><li>Staff-Id:&nbsp;&nbsp;"+$.cookie("loged").split("/")[0]+"</li><li>Staff-Name:&nbsp;&nbsp;"+$.cookie("loged").split("/")[2]+"</li><li>Staff-Type:&nbsp;&nbsp;"+$.cookie("loged").split("/")[1]+"</li><li><button class=\"logout\"><a>Logout</a></button><button class=\"edit_profile\"><a href=\"leavepersonal.html\">Edit Profile</a></button></li></ul>");
 	}
-	else window.location.assign("leavehome.html");
+	else window.location.assign("index.html");
 
 	$(".logout").click(function(){
 		$.removeCookie("loged");
-		window.location.assign("leavehome.html");
+		window.location.assign("index.html");
 	});
 	
 	if($.cookie("loged").split("//")[1]!="")

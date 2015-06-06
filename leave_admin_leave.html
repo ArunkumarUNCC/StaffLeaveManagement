@@ -19,11 +19,11 @@
 		$("#logo").attr("src",$.cookie("loged").split("//")[1]);
 	else $("#logo").attr("src","phps/images/photos/user_icon.png");
 	}
-	else window.location.assign("leavehome.html");
+	else window.location.assign("index.html");
 
 	$(".logout").click(function(){
 		$.removeCookie("loged");
-		window.location.assign("leavehome.html");
+		window.location.assign("index.html");
 		
 	});
 	
