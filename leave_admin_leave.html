@@ -53,14 +53,16 @@
 	});
 	
 	$("#staff_type").change(function(){
+		
 		if($(this).val()!="--Select Staff Type--"){
 			
 			$.ajax({
 				url:"phps/get_staff_leave.php",
-				data:{type:$("#staff_type").val()},
+				data:{type:$(this).val()},
 				type:"POST",
 				dataType:"json",
 				success:function(result){
+					alert(result);
 					$("#edit_table").find("tr:gt(0):not(:last)").remove();
 					
 					if(result[0].length>0){

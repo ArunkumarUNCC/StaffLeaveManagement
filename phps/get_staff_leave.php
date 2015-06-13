@@ -7,7 +7,7 @@
 	
 	$type=$_POST["type"];
 		
-	if($type="HOD")
+	if($type=="HOD")
 		$type="Teaching Staff";
 	
 	$leave_names=array();
@@ -26,5 +26,6 @@
 	$leave_names=explode(",",$names);
 	$leave_count=explode(",",$counts);
 	
+	//echo json_encode($type);
 	echo json_encode(array($leave_names,$leave_count));
 ?>

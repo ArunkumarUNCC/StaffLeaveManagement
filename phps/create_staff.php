@@ -26,7 +26,7 @@
 	$check=mysql_query("SELECT * FROM $tb_name WHERE `staff_id`='$id'");
 	
 	if(mysql_num_rows($check)==0){
-		mysql_query("INSERT INTO $tb_name VALUES('$id','$name','$type','$dept','$designation','$doj','$mail','$contact','$id','$id')");
+		mysql_query("INSERT INTO $tb_name(`staff_id`, `staff_name`, `staff_type`, `department`, `designation`, `doj`, `mail`, `contact`, `user_name`, `password`) VALUES('$id','$name','$type','$dept','$designation','$doj','$mail','$contact','$id','$id')");
 		
 		if($type!="Principal"){
 			if($type=="HOD")

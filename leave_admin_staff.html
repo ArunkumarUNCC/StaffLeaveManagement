@@ -256,6 +256,7 @@
 				type:"POST",
 				dataType:"json",
 				success:function(result){
+				
 					$("#delete_table,#leave_table").html("");	
 					$("#delete_table").append("<tr><td>Staff Id</td><td colspan=\"2\" style=\"margin-left: 30px;\">"+result[0]+"</td></tr>");
 					$("#delete_table").append("<tr><td>Staff Name</td><td colspan=\"2\" style=\"margin-left: 30px;\">"+result[1]+"</td></tr>");
@@ -281,18 +282,18 @@
 							
 								$("#delete_staff_details,#edit_staff_details,#submit_table").show();
 								for(var i=0;i<result[0].length;i++){
-								
-									if(parseInt(result[1][i][0].split("/")[0])>0){
+
+									if(parseInt(result[1][i].split("/")[0])>0){
 										if(result[0][i]!="On Duty"){
-											$("#leave_table").append("<tr><td>"+result[0][i]+"</td><td><input type=\"text\" value=\""+result[1][i][0].split("/")[0]+"\" id=\""+result[0][i]+"\" disabled /></td></tr>");
+											$("#leave_table").append("<tr><td>"+result[0][i]+"</td><td><input type=\"text\" value=\""+result[1][i].split("/")[0]+"\" id=\""+result[0][i]+"\" disabled /></td></tr>");
 											
 										}
-										else $("#leave_table").append("<tr><td>"+result[0][i]+"</td><td><input type=\"text\" value=\""+result[1][i][0].split("/")[0]+"\" id=\""+result[0][i].split(" ")[0]+"\" /></td></tr>");
+										else $("#leave_table").append("<tr><td>"+result[0][i]+"</td><td><input type=\"text\" value=\""+result[1][i].split("/")[0]+"\" id=\""+result[0][i].split(" ")[0]+"\" /></td></tr>");
 									}
 									else{
 										if(result[0][i]!="On Duty")
-											$("#leave_table").append("<tr><td>"+result[0][i]+"</td><td><input type=\"text\" value=\""+result[1][i][0].split("/")[0]+"\" id=\""+result[0][i]+"\" disabled /></td></tr>");
-										else $("#leave_table").append("<tr><td>"+result[0][i]+"</td><td><input type=\"text\" value=\""+result[1][i][0].split("/")[0]+"\" id=\""+result[0][i].split(" ")[0]+"\" /></td></tr>");
+											$("#leave_table").append("<tr><td>"+result[0][i]+"</td><td><input type=\"text\" value=\""+result[1][i].split("/")[0]+"\" id=\""+result[0][i]+"\" disabled /></td></tr>");
+										else $("#leave_table").append("<tr><td>"+result[0][i]+"</td><td><input type=\"text\" value=\""+result[1][i].split("/")[0]+"\" id=\""+result[0][i].split(" ")[0]+"\" /></td></tr>");
 										
 										lop=lop-(result[1][i][0].split("/")[0]);
 									}

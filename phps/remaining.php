@@ -44,6 +44,7 @@
 		$get_count=mysql_query("SELECT `$leave_names[$i]`,`LOP` FROM `staff` WHERE `staff_id`='$id' AND '$date' BETWEEN `from_date` AND `to_date`");
 		
 		while($row1=mysql_fetch_array($get_count)){
+			
 			array_push($count,$row1[0]);
 			$lop=$row1[1];
 		}

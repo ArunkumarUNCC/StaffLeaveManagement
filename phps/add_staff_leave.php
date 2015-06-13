@@ -26,7 +26,7 @@
 	}
 	$check=mysql_query("SELECT * FROM `staff` WHERE `from_date`='$from_date' AND `to_date`='$to_date'");
 	if(mysql_num_rows($check)==0){
-		$user1=mysql_query("SELECT `staff_id` FROM `leave_users` WHERE `staff_type`='$type'");
+		$user1=mysql_query("SELECT `staff_id` FROM `leave_users` WHERE `staff_type`='$type' OR `staff_type`='HOD'");
 		
 		$get=mysql_query("SELECT `leave_name`,`leave_count` FROM `leaves` WHERE `type`='$type'");
 			
@@ -44,6 +44,6 @@
 	}
 	
 	
-	echo json_encode(($leave_name));
+	echo json_encode("Leave Updated Successfully");
 	
 ?>

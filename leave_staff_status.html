@@ -44,7 +44,11 @@
 					$("#status tr:first").after("<tr><td>"+(result[0].length-i)+"</td><td>("+result[0][i].split(",")[0]+")-("+result[0][i].split(",")[result[0][i].split(",").length-1]+")</td><td>"+result[1][i]+"</td><td>"+result[7][i]+"</td><td>Leave Approved</td></tr>");
 				else if(result[6][i]=="Deny")
 					$("#status tr:first").after("<tr><td>"+(result[0].length-i)+"</td><td>("+result[0][i].split(",")[0]+")-("+result[0][i].split(",")[result[0][i].split(",").length-1]+")</td><td>"+result[1][i]+"</td><td>"+result[7][i]+"</td><td>Leave Denied</td></tr>");
-				else */$("#status tr:first").after("<tr><td>"+(result[0].length-i)+"</td><td>"+result[8][i]+"</td><td>("+result[0][i].split(",")[0]+")-("+result[0][i].split(",")[result[0][i].split(",").length-1]+")</td><td>"+result[1][i]+"</td><td>"+result[7][i]+"</td><td><button reff=\""+result[2][i]+"//"+result[3][i]+"//"+result[4][i]+"//"+result[5][i]+"//"+result[6][i]+"//"+result[10][i]+"//"+result[11][i]+"//"+result[12][i]+"\" class=\"check_status\">View</button></td></tr>");
+				else */
+				if(result[0][i].split(",")[result[0][i].split(",").length-1]==result[0][i].split(",")[0])
+					$("#status tr:first").after("<tr><td>"+(result[0].length-i)+"</td><td>"+result[8][i]+"</td><td>("+result[0][i].split(",")[0]+")</td><td>"+result[0][i].split(",").length+"</td><td>"+result[1][i]+"</td><td>"+result[7][i]+"</td><td><button reff=\""+result[2][i]+"//"+result[3][i]+"//"+result[4][i]+"//"+result[5][i]+"//"+result[6][i]+"//"+result[10][i]+"//"+result[11][i]+"//"+result[12][i]+"\" class=\"check_status\">View</button></td></tr>");
+				else			
+				$("#status tr:first").after("<tr><td>"+(result[0].length-i)+"</td><td>"+result[8][i]+"</td><td>("+result[0][i].split(",")[0]+")-("+result[0][i].split(",")[result[0][i].split(",").length-1]+")</td><td>"+result[0][i].split(",").length+"</td><td>"+result[1][i]+"</td><td>"+result[7][i]+"</td><td><button reff=\""+result[2][i]+"//"+result[3][i]+"//"+result[4][i]+"//"+result[5][i]+"//"+result[6][i]+"//"+result[10][i]+"//"+result[11][i]+"//"+result[12][i]+"\" class=\"check_status\">View</button></td></tr>");
 			}
 			
 			$.ajax({
@@ -149,7 +153,7 @@
                                 
                                 <fieldset><legend>Your Leave This Year</legend>
                                 	<table id="status" style="width:95%; border-collapse:collapse; text-align:center; line-height: 30px;" border="1" bordercolor="CCCCCC">
-                                		<tr><th>S.No</th><th>Submitted Date</th><th>Leave Date</th><th>Leave Type</th><th>Purpose</th><th>Status</th></tr>
+                                		<tr><th>S.No</th><th>Submitted Date</th><th>Leave Date</th><th># of Days</th><th>Leave Type</th><th>Purpose</th><th>Status</th></tr>
                                 	</table>
                                 </fieldset>
                             

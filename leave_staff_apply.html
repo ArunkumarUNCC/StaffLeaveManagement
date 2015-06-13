@@ -107,7 +107,7 @@
 								alert("Check Frequently your Leave Status for updates...");			
 								location.reload();
 							}
-							//else alert(result);
+							else alert(result);
 							
 							location.reload();
 						},
@@ -131,7 +131,7 @@
 						dataType:"json",
 						success:function(result){
 							
-							if(result[0]!="You are not eligible to take this leave"){
+							if(result!="You are not eligible to take this leave" && result!="The selected date is a holiday..."){
 								var depts=result.split(",");
 								$("#date1").html("<option>Select a Date</option>");
 								
@@ -142,7 +142,7 @@
 								$("#alternatives").show();
 								$("#dates").hide();	
 							}	
-							//else alert(result);	
+							else alert(result);	
 						},
 						error:function(result){
 							alert("Problem in Connection");
@@ -172,11 +172,13 @@
 						type:"POST",
 						dataType:"json",
 						success:function(result){
-							alert("Your Leave Has Been Submitted Successfully");			
+							
 							if(result!="You are not eligible to take this leave" && result!="The selected date is a holiday..."){
+								alert("Your Leave Has Been Submitted Successfully");			
 								alert("Check Frequently your Leave Status for updates...");
 								location.reload();
 							}
+							else alert(result);
 						},
 						error:function(result){
 							alert("Problem in Connection");
@@ -200,7 +202,8 @@
 						type:"POST",
 						dataType:"json",
 						success:function(result){
-							if(result[0]!="You are not eligible to take this leave"){
+							
+							if(result!="You are not eligible to take this leave" && result!="The selected date is a holiday..."){
 								var depts=result.split(",");
 								$("#date1").html("<option>Select a Date</option>");
 								
@@ -211,7 +214,7 @@
 								$("#alternatives").show();
 								$("#dates").hide();	
 							}
-							//else alert(result)			
+							else alert(result)			
 						},
 						error:function(result){
 							alert("Problem in Connection");

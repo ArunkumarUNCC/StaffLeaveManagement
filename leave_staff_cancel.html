@@ -135,8 +135,13 @@
 	$(document).on("click","#cancel",function(){
 		if(confirm("Are You Sure To Cancel This Leave???")){
 			var selected="";
+			var selected_count = $(".selected_sessions:checked").length;
 			$(".selected_sessions:checked").each(function(){
-				selected+=this.value+",";
+				if(selected_count!=1){		
+					selected+=this.value+",";
+					selected_count--;	
+				}
+				else selected+=this.value;
 			});
 			
 			if(selected!=""){

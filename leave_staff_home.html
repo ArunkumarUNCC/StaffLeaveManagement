@@ -28,7 +28,7 @@
 	});
 	
 	var d=new Date();
-	var date=d.getFullYear()+"-"+d.getMonth()+"-"+d.getDate();
+	var date=d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
 	var lop=0;
 	
 	if($.cookie("loged").split("/")[1]=="Principal"){
@@ -44,6 +44,7 @@
 			type:"POST",
 			dataType:"json",
 			success:function(result){
+				
 				for(var i=0;i<result[0].length;i++){
 					
 					if(parseInt(result[1][i][0].split("/")[0])>0)

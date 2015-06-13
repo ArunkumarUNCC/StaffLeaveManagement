@@ -75,6 +75,7 @@
 			type:"POST",
 			dataType:"json",
 			success:function(result){
+				
 				$("#edit_table").html("<tr><th>Staff Name</th><th>Date</th><th>Class</th><th>Subject</th><th>Period</th><th></th></tr>")
 				if(result[1].length==0)
 					$("#edit_table").html("<tr><td colspan=\"100%\" style=\"text-align:center;\"><h1>No Requests For You At This Time</h1></td></tr>");
@@ -100,6 +101,7 @@
 			type:"POST",
 			dataType:"json",
 			success:function(result){
+				
 				if(result[1].length==0)
 					$("#edit_table2").html("<tr><td colspan=\"100%\" style=\"text-align:center;\"><h1>No Requests For You At This Time</h1></td></tr>");
 					for(var i=0;i<result[1].length;i++){
@@ -116,7 +118,14 @@
 						type:"POST",
 						dataType:"json",
 						success:function(result){
-						
+							//alert(result[3][0].split(",").length);
+							if(result[0].length>0){
+							$("#edit_table3").html("<tr><th>S.No</th><th>Staff Name</th><th>Department</th><th>Cancel Leaves On</th><th>Leave Type</th><th>Purpose</th><th></th><th></th></tr>");
+							for(var i=0;i<result[0].length;i++){
+								$("#edit_table3").append("<tr><td>"+(i+1)+"</td><td>"+result[1][i]+"</td><td>"+result[2][i]+"</td><td>"+result[3][i]+"</td><td>"+result[5][i]+"</td><td>"+result[4][i]+"</td><td><button id=\"cancel_approve\" reff=\""+result[0][i]+"//"+result[3][i]+"//"+result[5][i]+"\">Approve</button></td><td><button id=\"cancel_deny\" reff=\""+result[0][i]+"//"+result[3][i]+"//"+result[5][i]+"\">Deny</button></td></tr>");
+							}
+						}
+						else $("#edit_table3").html("<tr><td colspan=\"100%\"><h1>No Requests Available For You At This Time</h1></td></tr>");
 						},
 						error:function(xhr){
 							alert("Problem in Connection");						
@@ -150,9 +159,9 @@
 					$("#edit_table2").append("<tr><th>Staff Name</th><th>Department</th><th>Requested Leave</th><th>Days</th><th>Leave Type</th><th>Purpose</th><th></th></tr>");
 					for(var i=0;i<result[1].length;i++){
 						if(result[2][i].split(",").length!=1)
-							$("#edit_table2").append("<tr><td><img src=\""+result[14][i]+"\" height=\"80\" width=\"80\" />"+result[1][i]+"</td><td>"+result[13][i]+"</td><td>("+result[2][i].split(",")[0]+"&nbsp;&nbsp;"+result[3][i].split(",")[0]+")-("+result[2][i].split(",")[result[2][i].split(",").length-1]+"&nbsp;&nbsp;"+result[3][i].split(",")[1]+")</td><td>"+result[8][i]+"</td><td>"+result[7][i]+"</td><td>"+result[9][i]+"</td><td><button class=\"view_details\" reff=\""+result[0][i]+"//"+result[1][i]+"//"+result[2][i]+"//"+result[4][i]+"//"+result[5][i]+"//"+result[6][i]+"//"+result[7][i]+"//"+result[10][i]+"//"+result[11][i]+"//"+result[12][i]+"\">View</button></td></tr>");
+							$("#edit_table2").append("<tr><td><img src=\""+result[14][i]+"\" height=\"80\" width=\"80\" /><br/>"+result[1][i]+"</td><td>"+result[13][i]+"</td><td>("+result[2][i].split(",")[0]+"&nbsp;&nbsp;"+result[3][i].split(",")[0]+")-("+result[2][i].split(",")[result[2][i].split(",").length-1]+"&nbsp;&nbsp;"+result[3][i].split(",")[1]+")</td><td>"+result[8][i]+"</td><td>"+result[7][i]+"</td><td>"+result[9][i]+"</td><td><button class=\"view_details\" reff=\""+result[0][i]+"//"+result[1][i]+"//"+result[2][i]+"//"+result[4][i]+"//"+result[5][i]+"//"+result[6][i]+"//"+result[7][i]+"//"+result[10][i]+"//"+result[11][i]+"//"+result[12][i]+"\">View</button></td></tr>");
 							
-						else $("#edit_table2").append("<tr><td><img src=\""+result[14][i]+"\" height=\"80\" width=\"80\" />"+result[1][i]+"</td><td>"+result[13][i]+"</td><td>("+result[2][i].split(",")[0]+"&nbsp;&nbsp;"+result[3][i].split(",")[0]+")</td><td>"+result[8][i]+"</td><td>"+result[7][i]+"</td><td>"+result[9][i]+"</td><td><button class=\"view_details\" reff=\""+result[0][i]+"//"+result[1][i]+"//"+result[2][i]+"//"+result[4][i]+"//"+result[5][i]+"//"+result[6][i]+"//"+result[7][i]+"//"+result[10][i]+"//"+result[11][i]+"//"+result[12][i]+"\">View</button></td></tr>");
+						else $("#edit_table2").append("<tr><td><img src=\""+result[14][i]+"\" height=\"80\" width=\"80\" /><br/>"+result[1][i]+"</td><td>"+result[13][i]+"</td><td>("+result[2][i].split(",")[0]+"&nbsp;&nbsp;"+result[3][i].split(",")[0]+")</td><td>"+result[8][i]+"</td><td>"+result[7][i]+"</td><td>"+result[9][i]+"</td><td><button class=\"view_details\" reff=\""+result[0][i]+"//"+result[1][i]+"//"+result[2][i]+"//"+result[4][i]+"//"+result[5][i]+"//"+result[6][i]+"//"+result[7][i]+"//"+result[10][i]+"//"+result[11][i]+"//"+result[12][i]+"\">View</button></td></tr>");
 						
 					}
 				}
@@ -164,12 +173,12 @@
 					dataType:"json",
 					success:function(result){
 						if(result[0].length>0){
-							$("#edit_table3").html("<tr><th>S.No</th><th>Staff Name</th><th>Department</th><th>Leave From/On</th><th>Leave To</th><th>Leave Type</th><th>Purpose</th><th></th><th></th></tr>");
+							$("#edit_table3").html("<tr><th>S.No</th><th>Staff Name</th><th>Department</th><th>Cancel Leaves On</th><th>Leave Type</th><th>Purpose</th><th></th><th></th></tr>");
 							for(var i=0;i<result[0].length;i++){
-								$("#edit_table3").append("<tr><td>"+(i+1)+"</td><td>"+result[1][i]+"</td><td>"+result[2][i]+"</td><td>"+result[3][i]+"</td><td>"+result[4][i]+"</td><td>"+result[6][i]+"</td><td>"+result[5][i]+"</td><td><button id=\"cancel_approve\" reff=\""+result[0][i]+"//"+result[3][i]+"//"+result[4][i]+"//"+result[6][i]+"\">Approve</button></td><td><button id=\"cancel_deny\" reff=\""+result[0][i]+"//"+result[3][i]+"//"+result[4][i]+"//"+result[6][i]+"\">Deny</button></td></tr>");
+								$("#edit_table3").append("<tr><td>"+(i+1)+"</td><td>"+result[1][i]+"</td><td>"+result[2][i]+"</td><td>"+result[3][i]+"</td><td>"+result[5][i]+"</td><td>"+result[4][i]+"</td><td><button id=\"cancel_approve\" reff=\""+result[0][i]+"//"+result[3][i]+"//"+result[5][i]+"\">Approve</button></td><td><button id=\"cancel_deny\" reff=\""+result[0][i]+"//"+result[3][i]+"//"+result[5][i]+"\">Deny</button></td></tr>");
 							}
 						}
-						else $("#edit_table3").html("<tr><td colspan=\"100%\">No Requests Available For You At This Time</td></tr>");
+						else $("#edit_table3").html("<tr><td colspan=\"100%\"><h1>No Requests Available For You At This Time</h1></td></tr>");
 					},
 					error:function(xhr){
 						alert(xhr.status);
@@ -212,7 +221,7 @@
 		bb.show();
 	
 		var staff=[];
-		$("#leaves_rem tr:gt(0)").remove();
+		$("#leaves_rem").html("");
 		
 		$.ajax({
 			url:"phps/remaining.php",
@@ -389,19 +398,21 @@
 	});
 	
 	$(document).on("click","#cancel_approve,#cancel_deny",function(){
-		$.ajax({
-			url:"phps/update_cancel_status.php",
-			data:{id:$(this).attr("reff").split("//")[0],from:$(this).attr("reff").split("//")[1],to:$(this).attr("reff").split("//")[2],type:$(this).attr("reff").split("//")[3],status:$(this).html()},
-			type:"POST",
-			dataType:"json",
-			success:function(result){
-				alert(result)
-				//location.reload()
-			},
-			error:function(xhr){
-				alert(xhr.status);
-			}
-		});
+		if(confirm("Are you sure to "+$(this).html()+" this Leave Cancellation?")){
+			$.ajax({
+				url:"phps/update_cancel_status.php",
+				data:{id:$(this).attr("reff").split("//")[0],from:$(this).attr("reff").split("//")[1],type:$(this).attr("reff").split("//")[2],status:$(this).html(),user:$.cookie("loged").split("/")[1]},
+				type:"POST",
+				dataType:"json",
+				success:function(result){
+					alert(result)
+					location.reload()
+				},
+				error:function(xhr){
+					alert(xhr.status);
+				}
+			});
+		}
 	});
   });
   </script>
