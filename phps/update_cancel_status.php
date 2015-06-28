@@ -12,6 +12,7 @@
 	$status=$_POST["status"];
 	
 	$temp=array();
+	$check = array();
 	$total=0;
 	
 	$connect_id=mysql_connect("localhost", "root", "123456")or die("cannot connect"); 
@@ -41,21 +42,22 @@
 			$reduce_session = 0;
 			
 			for($i=0;$i<sizeof($cancelling_dates);$i++){
-				
-				if((explode("_",$cancelling_dates[$i],1)=="an" || explode("_",$cancelling_dates[$i],1)=="fn")){}
+				$check = explode("_",$cancelling_dates[$i]);
+				if($check[1]=="an" || $check[1]=="fn")
 					$reduce_session+=0.5;
+				//else $reduce_session+=1;
 			}
 				
 			$date_count-=$reduce_session;
-
+			
 			$get1=mysql_query("SELECT `$type` FROM `staff` WHERE `staff_id`='$id' AND ('$tempDate1[0]' BETWEEN `from_date` AND `to_date`)");
 	
 			
 			while($row1=mysql_fetch_array($get1)){
 				$temp=explode("/",$row1[0]);
 			}
-			
-			$date_count+=intval($temp[0]);
+			$myTemp = $temp[0]+$date_count;
+			$date_count+=$temp[0];
 			
 			$get_total = mysql_query("SELECT `total` FROM `apply` WHERE `staff_id`='$id' AND `dates` LIKE '%$from%' AND `leave_type`='$type'");
 			
@@ -63,6 +65,6 @@
 		}
 	}
 	echo json_encode("You ".$status."d Leave Cancellation");
-	///echo json_encode("Hello");
+	//echo json_encode($myTemp);
 ?>
 	

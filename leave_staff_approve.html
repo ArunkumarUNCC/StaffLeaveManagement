@@ -19,7 +19,7 @@
   <script type="text/javascript">
   $(window).load(function(){
   	var d=new Date();
-	var date=d.getFullYear()+"-"+d.getMonth()+"-"+d.getDate();
+	var date=d.getFullYear()+"-"+(d.getMonth()<10?"0"+(d.getMonth()+1):d.getMonth()+1)+"-"+d.getDate();
 	var lop=0;
   	$("#leave_report").hide();
 	$("#approve_leave,#toPopup,#princi_only,#cancel_leave,#princi_menu,#hod_menu,#alternate_staff").hide();
@@ -229,13 +229,15 @@
 			type:"POST",
 			dataType:"json",
 			success:function(result){
+				
 				lop=0;
 				for(var i=0;i<result[0].length;i++){
-					if(parseInt(result[1][i][0].split("/")[0])>0)
-						$("#leaves_rem").append("<tr><td>"+result[0][i]+"</td><td><center><strong>"+result[1][i][0].split("/")[0]+"</strong></center></td></tr>");
+				
+					if(parseInt(result[1][i].split("/")[0])>0)
+						$("#leaves_rem").append("<tr><td>"+result[0][i]+"</td><td><center><strong>"+result[1][i].split("/")[0]+"</strong></center></td></tr>");
 					else{
 						$("#leaves_rem").append("<tr><td>"+result[0][i]+"</td><td><center><strong>0</strong></center></td></tr>");
-						lop=lop-(result[1][i][0].split("/")[0]);
+						lop=lop-(result[1][i].split("/")[0]);
 					}
 				}
 	

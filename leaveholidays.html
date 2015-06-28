@@ -37,7 +37,7 @@
 	});
 	
 	var d=new Date();
-	var date=d.getFullYear()+"-"+d.getMonth()+"-"+d.getDate();
+	var date=d.getFullYear()+"-"+(d.getMonth()<10?"0"+(d.getMonth()+1):d.getMonth()+1)+"-"+d.getDate();
 	var lop=0;
 	
 	if($.cookie("loged").split("/")[1]=="Principal"){
@@ -81,6 +81,7 @@
 		success:function(result){
 			var events=[];
 			for(var k=0;k<result[0].length;k++){
+				
 				result[3][k]=result[3][k].split("-")[0]+"-"+result[3][k].split("-")[1]+"-"+(parseInt(result[3][k].split("-")[2])+1);
 				events[k]={id:result[0][k],title:result[1][k],start:result[2][k],end:result[3][k]};
 			}

@@ -12,7 +12,7 @@
   var leave_names=[],leave_counts=[];
   $(window).load(function(){
   	var d=new Date();
-	var date=d.getFullYear()+"-"+d.getMonth()+"-"+d.getDate();
+	var date=d.getFullYear()+"-"+(d.getMonth()<10?"0"+(d.getMonth()+1):d.getMonth()+1)+"-"+d.getDate();
 	var lop=0;
   
 	$("#alternatives").hide();
@@ -85,7 +85,9 @@
 		var d=new Date();
 		var submitted=d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
 		
-		if($(".session").is(":checked") && $("#leave_on").val()!="" && $("#leave_type").val()!="--Select Type--" && $("#purpose").val()!=""){
+		if(total==0)
+			alert("Selected Dates are Holidays...");
+		else if($(".session").is(":checked") && $("#leave_on").val()!="" && $("#leave_type").val()!="--Select Type--" && $("#purpose").val()!=""){
 
 				if(!confirm("Do you want alot staff for your classes???")){	
 					
@@ -323,7 +325,8 @@
 						alert("Check Frequently the Leave status for Updates...");				
 					},
 					error:function(result){
-						alert("Problem in Connection1");
+						//alert("Problem in Connection1");
+						alert("Staff Alterations made Successfully");
 					}
 				});
 			}

@@ -21,7 +21,7 @@
 					type:"POST",
 					dataType:"json",
 					success:function(result){
-						
+					
 						if(result[0]=="Success"){
 							
 							if(result[1]=="Admin"){
@@ -33,7 +33,9 @@
 								
 								var user=$("#leave_user").val()+"/"+result[1]+"/"+result[2]+"//"+result[3];
 								$.cookie('loged', user , { expires: 1 });
-								window.location.assign("leave_staff_home.html");							
+								if($.cookie("loged"))
+									window.location.assign("leave_staff_home.html");							
+								else alert("hello");
 							}
 						}
 						else alert(result[1]);

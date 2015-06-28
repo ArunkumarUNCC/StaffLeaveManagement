@@ -38,7 +38,7 @@
 	}
 
 	var config = $.cookie = function (key, value, options) {
-
+		
 		// Write
 		if (value !== undefined) {
 			options = $.extend({}, config.defaults, options);
@@ -78,7 +78,7 @@
 				result[name] = decodeAndParse(cookie);
 			}
 		}
-
+		
 		return result;
 	};
 
