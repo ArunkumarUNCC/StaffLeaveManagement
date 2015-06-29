@@ -26,6 +26,8 @@
 		
 	});
 	
+	$("#cancel_status").hide();
+	
 	var d=new Date();
 	var date=d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
 	var lop=0;
@@ -54,7 +56,7 @@
 				dataType:"json",
 				success:function(result){
 										
-					$("#cancel_status").append("<center><h2 style=\"margin-top: 20px;\">Cancelled Leave Status</h2>")
+					$("#cancel_status").append("<center><h2>Cancelled Leave Status</h2>")
 					if(result[4].length>0){
 						for(var i=0;i<result[4].length;i++){
 							
@@ -63,7 +65,7 @@
 						}
 					}
 					
-					else  $("#cancel_status").append("<div class=\"row1\"><table border=\"1\" style=\"width:100%; text-align: center;margin-top: 20px;\"><tr><td><h2>You Have No Approvals...</h2></td></tr></table></row1>");
+					else  $("#cancel_status").append("<div class=\"row1\"><table border=\"1\" style=\"width:100%; text-align: center;margin-top: 20px;\"><tr><td><h2>You Have Not Cancelled any Leave...</h2></td></tr></table></row1>");
 				},
 				error:function(xhr){
 					alert("Problem in Connection");
@@ -168,6 +170,23 @@
 			else alert("You Haven't Selected A Date or a Session!!!")
 		}
 	});
+	
+	$("#cancellation").click(function(){
+		
+		$(this).css("border-bottom","2px solid #1da5ee");
+		$("#cancellation_status").css("border-bottom","");
+		$("#cancel_status").hide();
+		$("#leave_for_cancelling").show();
+	});
+	
+	$("#cancellation_status").click(function(){
+		$(this).css("border-bottom","2px solid #1da5ee");
+		$("#cancellation").css("border-bottom","");
+		$("#cancel_status").show();
+		$("#leave_for_cancelling").hide();
+		
+	});
+	
   });
   </script>
 </head>
@@ -199,7 +218,10 @@
 					</div>
 					<div class="content">
 						<div class="content-left" style="min-height:400px;">
+                        	<div id="cancellation_menu">
+                        <span style="margin-left: 20px; margin-right: 20px; font-size:16px"><strong><a id="cancellation" style="border-bottom: 2px solid #1da5ee;">Cancellation</a></strong></span>|<span style="margin-left: 20px; margin-right: 20px; font-size:16px;"><strong><a id="cancellation_status">Cancellation Status</a></strong></span></span></div><br/>
                         	<center>
+                            	<div id="leave_for_cancelling">
                             	<h2>Cancel Leaves</h2>
                                 
                                 <fieldset style="width: 80%;"><legend>Select Dates</legend>
@@ -212,7 +234,7 @@
                                 	
                                 </div>
                                 
-                                <hr/>
+                                </div>
                                 
                                 <div id="cancel_status">
                                 

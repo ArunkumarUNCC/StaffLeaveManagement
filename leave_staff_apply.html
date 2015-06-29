@@ -85,7 +85,7 @@
 		var d=new Date();
 		var submitted=d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
 		
-		if(total==0)
+		if(total==0 && $("#leave_from").val()!="" && $("#leave_to").val()!="")
 			alert("Selected Dates are Holidays...");
 		else if($(".session").is(":checked") && $("#leave_on").val()!="" && $("#leave_type").val()!="--Select Type--" && $("#purpose").val()!=""){
 
@@ -236,7 +236,7 @@
 		var len=$("#main_field fieldset fieldset").length+1;
 		$("#add_staff,#remove_staff").remove();
 		
-		$("#main_field").append("<fieldset id=\""+len+"\"><legend>Add Staff "+len+"</legend><table><tr><td><select id=\"date"+len+"\" style=\"width: 150px;\"></select></td><td><input type=\"text\" placeholder=\"(eg)II CSE A\" id=\"class"+len+"\" /></td><td><input type=\"text\" placeholder=\"(eg)1\" id=\"period"+len+"\" /></td><td><input type=\"text\" placeholder=\"(eg)OOPS\" id=\"subject"+len+"\" /></td></tr><tr><td colspan=\"4\"><center><fieldset><legend>Staff Details</legend><select id=\"dept"+len+"\" class=\"defined_dept\"></select><select id=\"staff"+len+"\" class=\"defined_staff\"></select></fieldset></center></td></tr></table></fieldset><br/><button id=\"add_staff\" style=\"margin-top: 10px;\">Add Staff</button><button id=\"remove_staff\" style=\"margin-top: 10px;\">Remove Staff</button>");
+		$("#main_field").append("<fieldset id=\""+len+"\"><legend>Add Staff "+len+"</legend><table><tr><td><select id=\"date"+len+"\" style=\"width: 150px;\"></select></td><td><input type=\"text\" placeholder=\"(eg)II CSE A\" id=\"class"+len+"\" onBlur=\"$(this).val($(this).val().toUpperCase())\" /></td><td><input type=\"text\" placeholder=\"(eg)1\" id=\"period"+len+"\" /></td><td><input type=\"text\" placeholder=\"(eg)OOPS\" id=\"subject"+len+"\" onBlur=\"$(this).val($(this).val().toUpperCase())\" /></td></tr><tr><td colspan=\"4\"><center><fieldset><legend>Staff Details</legend><select id=\"dept"+len+"\" class=\"defined_dept\"></select><select id=\"staff"+len+"\" class=\"defined_staff\"></select></fieldset></center></td></tr></table></fieldset><br/><button id=\"add_staff\" style=\"margin-top: 10px;\">Add Staff</button><button id=\"remove_staff\" style=\"margin-top: 10px;\">Remove Staff</button>");
 		
 		$("#date"+len).html($("#date1").html());
 		$("#dept"+len).html("<option>Select Department</option>");
@@ -563,6 +563,7 @@
 			}
 		}
 	});
+
   });
   </script>
   
@@ -645,7 +646,7 @@ table tr td input{
                                     
                                     <fieldset><legend>Add Staff 1</legend>
                                     	<table>
-                                        	<tr><td><select id="date1" style="width: 150px;"></select></td><td><input type="text" id="class1" placeholder="(eg)II CSE A" style="width: 150px;" /></td><td><input type="text" placeholder="(eg)1" id="period1" style="width: 150px;" /></td><td><input type="text" id="subject1" placeholder="(eg)OOPS" style="width: 150px;" /></td></tr>
+                                        	<tr><td><select id="date1" style="width: 150px;"></select></td><td><input type="text" id="class1" placeholder="(eg)II CSE A" style="width: 150px;" onBlur="$(this).val($(this).val().toUpperCase())" /></td><td><input type="text" placeholder="(eg)1" id="period1" style="width: 150px;" /></td><td><input type="text" id="subject1" placeholder="(eg)OOPS" style="width: 150px;" onBlur="$(this).val($(this).val().toUpperCase())" /></td></tr>
                                             <tr><td colspan="4"><center>
                                             	<fieldset><legend>Staff Details</legend>
                                                 	<select id="dept1" class="defined_dept">

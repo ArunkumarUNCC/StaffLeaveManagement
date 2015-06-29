@@ -11,7 +11,7 @@
 	$connect_id=mysql_connect("localhost", "root", "123456")or die("cannot connect"); 
 	mysql_select_db("$db_name",$connect_id) or die("NoDatabase");
 	
-	$check=mysql_query("SELECT `staff_type`,`staff_name`,`photo` FROM $tb_name WHERE `user_name`='$user_name' AND `password`='$password'");
+	$check=mysql_query("SELECT `staff_type`,`staff_name`,`photo` FROM $tb_name WHERE BINARY `user_name`='$user_name' AND BINARY `password`='$password'");
 		
 	if(mysql_num_rows($check)>=1){
 		while($row=mysql_fetch_array($check)){

@@ -34,8 +34,8 @@ if(mysql_num_rows($get)>0){
 
 		//$mail->AddReplyTo("b.arun410@gmail.com","Manikandan");
 
-		$mail->Subject = 'HALL BOOKING for';
-      	$mail->AltBody = 'HALL BOOKING'; // optional - MsgHTML will create an alternate automatically
+		$mail->Subject = 'SLMS Password Change';
+      	$mail->AltBody = 'SLMS Password Change'; // optional - MsgHTML will create an alternate automatically
 		$mail->MsgHTML("<html><table style=\"text-align: center;\"><tr><td colspan=\"2\" style=\"width: 200px;\"><img src=\"../images/leave_logo.jpg \" style=\"width: 400px;\" /></td></tr><tr><td>Your Staff ID</td><td>$id</td></tr><tr><td>Your Password</td><td>$password</td></tr><tr style=\"text-align: right; margin-top: 50px;\"><td colspan=\"2\"><b>Regards<br/>(Arunkumar)Administrator<br/>Staff Leave Management System</b></td></tr>");
 		if(!$mail->Send()) {
 		  echo json_encode("A password has been sent to your mail-id");
