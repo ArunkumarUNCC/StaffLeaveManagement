@@ -27,32 +27,43 @@
 		window.location.assign("index.html");
 	});
 	
-	$("#delete_div,#new_dept_div,#new_desig_div,#delete_staff_details,#edit_staff_details,#submit_table").hide();
+	$("#delete_div,#new_dept_div,#new_desig_div,#delete_staff_details,#edit_staff_details,#submit_table,#add_admin_div").hide();
 	
 	
 	
 	$("#delete").click(function(){
-		$("#add_div,#new_dept_div,#new_desig_div").hide();
+		$("#add_div,#new_dept_div,#new_desig_div,#add_admin_div").hide();
 		$("#delete_div").show();
 		$(this).css("border-bottom","2px solid #1da5ee");
-		$("#add").css("border-bottom","");
+		$("#add,#dept,#desig,#add_admin").css("border-bottom","");
 	});
 	
 	$("#dept").click(function(){
-		$("#add_div,#delete_div,#new_desig_div").hide();
+		$("#add_div,#delete_div,#new_desig_div,#add_admin_div").hide();
 		$("#new_dept_div").show();
+		$(this).css("border-bottom","2px solid #1da5ee");
+		$("#add,#delete,#desig,#add_admin").css("border-bottom","");
 	});
 	
 	$("#desig").click(function(){
-		$("#add_div,#delete_div,#new_dept_div").hide();
+		$("#add_div,#delete_div,#new_dept_div,#add_admin_div").hide();
 		$("#new_desig_div").show();
+		$(this).css("border-bottom","2px solid #1da5ee");
+		$("#add,#delete,#dept,#add_admin").css("border-bottom","");
 	});
 	
 	$("#add").click(function(){
 		$("#add_div").show();
-		$("#delete_div,#new_dept_div,#new_desig_div").hide();
+		$("#delete_div,#new_dept_div,#new_desig_div,#add_admin_div").hide();
 		$(this).css("border-bottom","2px solid #1da5ee");
-		$("#delete").css("border-bottom","");
+		$("#delete,#dept,#desig,#add_admin").css("border-bottom","");
+	});
+	
+	$("#add_admin").click(function(){
+		$("#add_admin_div").show();
+		$("#delete_div,#new_dept_div,#new_desig_div,#add_div").hide();
+		$(this).css("border-bottom","2px solid #1da5ee");
+		$("#delete,#dept,#desig,#add").css("border-bottom","");	
 	});
 	
 	$("#single_submit").click(function(){
@@ -98,6 +109,26 @@
 					}
 				});
 			}
+		}
+		else alert("Please provide all details...");
+	});
+	
+	$("#admin_submit").click(function(){
+		
+		if($("#admin_name").val()!="" && $("#admin_id").val()!="" && $("#admin_mail").val()!="" && $("#admin_contact").val()!=""){
+			$.ajax({
+				url:"phps/create_admin.php",
+				data:{name:$("#admin_name").val(),id:$("#admin_id").val(),mail:$("#admin_mail").val(),contact:$("#admin_contact").val()},
+				type:"POST",
+				dataType:"json",
+				success:function(result){
+					alert(result);
+					location.reload();
+				},
+				error:function(result){
+					alert("Problem in Connection");
+				}
+			});
 		}
 		else alert("Please provide all details...");
 	});
@@ -158,6 +189,10 @@
 	
 	$("#staff_id").blur(function(){
 		$("#staff_user,#staff_pass").val($(this).val());
+	});
+
+	$("#admin_id").blur(function(){
+		$("#admin_user,#admin_pass").val($(this).val());
 	});
 	
 	$("#add_dept").click(function(){
@@ -405,7 +440,7 @@
                     	
 						<div class="content-left" style="min-height:400px; margin-top: 20px;">
                         
-                        	<span style="margin-left: 20px; margin-right: 20px; font-size:16px"><strong><a id="add" style="border-bottom: 2px solid #1da5ee;">Add Staff</a></strong></span>|<span style="margin-left: 20px; margin-right: 20px; font-size:16px;"><strong><a id="delete">Edit Staff</a></strong></span>|<span style="margin-left: 20px; margin-right: 20px; font-size:16px;"><strong><a id="dept">Department Entry</a></strong></span>|<span style="margin-left: 20px; margin-right: 20px; font-size:16px;"><strong><a id="desig">Designation Entry</a></strong></span>
+                        	<span style="margin-left: 20px; margin-right: 20px; font-size:16px"><strong><a id="add" style="border-bottom: 2px solid #1da5ee;">Add Staff</a></strong></span>|<span style="margin-left: 20px; margin-right: 20px; font-size:16px"><strong><a id="add_admin">Add Admin</a></strong></span>|<span style="margin-left: 20px; margin-right: 20px; font-size:16px;"><strong><a id="delete">Edit Staff</a></strong></span>|<span style="margin-left: 20px; margin-right: 20px; font-size:16px;"><strong><a id="dept">Department Entry</a></strong></span>|<span style="margin-left: 20px; margin-right: 20px; font-size:16px;"><strong><a id="desig">Designation Entry</a></strong></span>
                         	<center>
                             	<div id="add_div" style="margin-top: 10px;">
                                     <h1>Add Staff Entry</h1>
@@ -467,7 +502,7 @@
                                         <tr><td>Mail-Id</td><td> <input type="text" style="margin-left: 20px;" id="staff_mail" name="staff_mail" placeholder="arunb@skcet.ac.in" /></td></tr>
                                         <tr><td>Staff Contact</td><td> <input type="text" style="margin-left: 20px;" id="staff_contact" name="staff_contact" onKeyPress="return isNumber(event)" placeholder="7708920081" maxlength="10" /></td></tr>
                                         
-                                        <tr><td>Staff Photo</td><td><input type="file" style="margin-left: 20px; border: 1px solid #CCCCCC" id="staff_photo" name="staff_photo" /></td></tr>	
+                                        <!--<tr><td>Staff Photo</td><td><input type="file" style="margin-left: 20px; border: 1px solid #CCCCCC" id="staff_photo" name="staff_photo" /></td></tr>-->	
 									</table>
                                     
                                     </fieldset>
@@ -609,60 +644,52 @@
                                     </fieldset>
                                 </div>
                                 
+                                <div id="add_admin_div" style="width: 80%; margin-top: 10px;">
+                                	<h1>Add Admin Entry</h1>
+                                    
+                                    <div style="width: 80%;">
+                                    
+                                   
+                                    <fieldset style="margin-top: 20px;width: 80%; background-color:#FFFFFF"><legend style="margin-left: -100px;">Admin Details</legend>
+                                    
+                                    <table style=" ">
+                                        <tr><td>Staff Name</td><td> <input type="text" style="margin-left: 20px;" id="admin_name" name="admin_name" placeholder="Arunkumar Bagavathi" /></td></tr>
+                                        <tr><td>Staff Id</td><td> <input type="text" style="margin-left: 20px;" id="admin_id" name="admin_id" placeholder="CS14200" /></td></tr>
+                                      	<tr><td>Staff Type</td><td> 
+                                        	<input type="text" disabled value="Admin" id="admin_type" name="admin_type" style="margin-left: 20px;" />
+                                        </td></tr>
+                                        
+                                        <!--<tr><td>Date of Joining</td><td> <input type="date" style="margin-left: 20px;" id="admin_doj" name="admin_doj" /></td></tr>-->
+                                        <tr><td>Mail-Id</td><td> <input type="text" style="margin-left: 20px;" id="admin_mail" name="admin_mail" placeholder="arunb@skcet.ac.in" /></td></tr>
+                                        <tr><td>Staff Contact</td><td> <input type="text" style="margin-left: 20px;" id="admin_contact" name="admin_contact" onKeyPress="return isNumber(event)" placeholder="7708920081" maxlength="10" /></td></tr>
+                                        
+                                        <!--<tr><td>Staff Photo</td><td><input type="file" style="margin-left: 20px; border: 1px solid #CCCCCC" id="admin_photo" name="admin_photo" /></td></tr>-->	
+									</table>
+                                    
+                                    </fieldset>
+                                                                        
+                                    <fieldset style="margin-top: 20px;width: 80%; background-color:#FFFFFF"><legend style="margin-left: -100px;">Login Details</legend>
+                                    <table>
+                                        <tr><td colspan="2">
+                                            <table>
+                                                <tr><td>User Name</td><td><input type="text" id="admin_user" namne="admin_user" disabled/></td></tr>
+                                                <tr><td>Password</td><td><input type="text" id="admin_pass" name="admin_pass" disabled/></td></tr>
+                                            </table>
+                                        </fieldset></td></tr>
+                                        <tr><td colspan="2"></td></tr>
+                                    </table>
+                                    </fieldset>
+                                    <center><button id="admin_submit" style="margin-top: 10px;">Submit</button></center>
+                                   
+                                   </div>
+                                </div>
+                                
                             </center>
-							<!--<div class="row1">
-								<!--<div class="img"><img src="images/img1.jpg" alt="" height="101" width="157"></div>-->
-								<!--<div class="welcome">
-                                       <h1 class="title">Welcome to <span>SKCET Leave Management System</span></h1>
-                                       
-                                       <p><strong>Leave Management Portal is the website developed only for SKCET staffs.</strong><br><p>&nbsp;</p>
-                                       SKCET Leave Management Portal is highly aimed to reduce the paper work for the staffs to apply leave.
-                                       Staffs can apply leave directly from this Leave Management System. The applied leave will be automatically 									   forwarded to the higher officials for the leave approval. Staffs can also allocate other staffs for their 										classes. </p>
-								</div>
-							</div>-->
-							<!--<div class="row2">
-								<div class="section1">
-                                       <h2 class="subtitle">What&#8217;s New</h2>
-                                       <p><strong>Lorem Ipsum is simply dummy text of the<br>
-                                       printing and typesetting industry.</strong><br>
-                                       Lorem Ipsum has been the industry's standard<br>
-                                       dummy text ever since the 1500s, when an<br>
-                                       unknown printer took a galley of type and</p>
-                                       <p>&nbsp;</p>
-                                       <p>&nbsp;</p>
-                                       <p><a href="#" class="more">read more</a></p>
-								</div>
-								<div class="section2">
-                            	    <h2 class="subtitle">Resources</h2>
-                                    <p><strong>Lorem Ipsum is simply dummy text of the printing and
-                                    typesetting industry.</strong><br>
-                                    Lorem Ipsum has been the industry's standard dummy text ever since the
-                                    1500s, when an unknown printer took a galley of type and scrambled it
-                                    to make a type specimen book. It has survived not only five centuries,
-                                     but</p>
-                                     <p>&nbsp;</p>
-                                    <p><a href="#" class="more">read more</a></p>
-								</div>
-							</div>-->
+						
 						</div>
 						<div class="content-right login">
                                <center><h2>Welcome</h2></center>
-                               		<!--<ul>
-                               		<li><p>User Name&nbsp;&nbsp; <input type="text" placeholder="User Name" id="leave_user"/></p></li>
-                                    <li><p style="margin-top: 10px;">Password&nbsp;&nbsp; <input type="password" placeholder="Password" id="leave_pass"/></p></li>
-                                    <li><p style="margin-top: 10px; margin-bottom: 10px"><button id="log">Login</button><button id="forgot">Forgot Password</button></p></li>
-                                    </ul>-->
-                                <!--<ul>
-                                  <li style="border-top: medium none;"><a href="#">Link 1</a></li>
-                                  <li><a href="#">Link 2</a></li>
-                                  <li><a href="#">Link 3</a></li>
-                                  <li><a href="#">Link 4</a></li>
-                                  
-
-                                </ul>
-                                <p>&nbsp;</p>
-                                <p>&nbsp;</p>
-                                <p>&nbsp;</p>-->
+                               		
 						</div>
                         
 					</div>
