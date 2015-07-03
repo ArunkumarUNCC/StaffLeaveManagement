@@ -7,13 +7,17 @@
 	
 	$dept=$_POST["dept"];
 	$name=$_POST["name"];
+	$type=$_POST["staff_type"];
 	$staffs=array();
 	$ids=array();
 	
 	$connect_id=mysql_connect("localhost", "root", "123456")or die("cannot connect"); 
 	mysql_select_db("$db_name",$connect_id) or die("NoDatabase");
 	
-	$get=mysql_query("SELECT `staff_id`,`staff_name` FROM $tb_name WHERE `staff_type`!='Admin' AND `staff_type`!='Principal' AND `staff_name`!='$name' AND `department`='$dept'");
+	if($type=="Non teaching Staff")
+		$get=mysql_query("SELECT `staff_id`,`staff_name` FROM $tb_name WHERE `staff_type`!='Admin' AND `staff_type`='$type' AND `staff_name`!='$name' AND `department`='$dept'");
+	else
+		$get=mysql_query("SELECT `staff_id`,`staff_name` FROM $tb_name WHERE `staff_type`!='Admin' AND (`staff_type`='$type' OR `staff_type`='HOD') AND `staff_name`!='$name' AND `department`='$dept'");
 	
 	while($row=mysql_fetch_array($get)){
 		array_push($staffs,$row[1]);

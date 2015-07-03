@@ -24,7 +24,7 @@
 	$connect_id=mysql_connect($host, $username, $password);
 	mysql_select_db("$db_name",$connect_id) or die("NoDatabase");
 	
-	//mysql_query("UPDATE $tb_name SET `principal`='$status' WHERE `staff_id`='$id' AND `dates`='$date' AND `staff`='$staff' AND `classes`='$class' AND `periods`='$period' AND `leave_type`='$leave_type'");
+	mysql_query("UPDATE $tb_name SET `principal`='$status' WHERE `staff_id`='$id' AND `dates`='$date' AND `staff`='$staff' AND `classes`='$class' AND `periods`='$period' AND `leave_type`='$leave_type'");
 	
 	$get_size=mysql_query("SELECT `total` FROM $tb_name WHERE `staff_id`='$id' AND `dates`='$date' AND `staff`='$staff' AND `classes`='$class' AND `periods`='$period' AND `leave_type`='$leave_type'");
 	

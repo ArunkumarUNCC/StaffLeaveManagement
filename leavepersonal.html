@@ -36,6 +36,18 @@
 		$(".content-right:not('.login')").hide();
 	}
 
+	$("#single_submit").click(function(){
+		if($("#staff_photo").val()!=""){
+			//alert($.cookie("loged"));
+			var temp = $.cookie("loged").split("//")[0];
+			var file = $("#staff_photo").val().split("\\")[2];
+			//alert(file);
+			temp+="//phps/images/photos/"+ file;
+			//alert(temp);
+			$.cookie("loged",temp,{expires:1});
+			
+		}
+	});
 	
 		$.ajax({
 			url:"phps/edit_personal.php",
@@ -222,6 +234,8 @@ table tr td{
 													location.reload();
                                                     
                                                 }
+												
+												
                                             });
                                         })();
                                     </script>

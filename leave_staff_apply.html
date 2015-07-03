@@ -263,9 +263,10 @@
 	
 	$(document).on("change",".defined_dept",function(){
 		id=$(this).attr("id").split("dept")[1];
+		var type = $.cookie("loged").split("/")[1];
 		$.ajax({
 			url:"phps/get_staffs.php",
-			data:{dept:$(this).val(),name:$.cookie("loged").split("/")[2]},
+			data:{dept:$(this).val(),name:$.cookie("loged").split("/")[2],staff_type:type},
 			type:"POST",
 			dataType:"json",
 			success:function(result){
