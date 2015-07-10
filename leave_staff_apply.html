@@ -38,8 +38,9 @@
 		type:"POST",
 		dataType:"json",
 		success:function(result){
+			
 			for(var i=0;i<result[0].length;i++)
-			$("#leave_type").append("<option>"+result[0][i]+"</option>");
+			$("#leave_type").append("<option value=\""+result[0][i]+"\">"+result[0][i]+"</option>");
 			
 			$.ajax({
 				url:"phps/remaining.php",
@@ -55,6 +56,11 @@
 						
 						leave_names[i]=result[0][i];
 						leave_counts[i]=result[1][i].split("/")[0];
+						
+						if(leave_names[i]=="CL" || leave_names[i]=="Casual Leave"){
+							if(leave_counts[i]!=0)
+								$("#leave_type option[value='LOP']").remove();	
+						}
 						/*else{
 							$("#remaining_leave").append("<tr><td>"+result[0][i]+"</td><td>0</td></tr>");
 							lop=lop-(result[1][i][0].split("/")[0]);
@@ -605,7 +611,7 @@ table tr td input{
                             	<fieldset style="width: 70%;"><legend>Select Your Leave Dates</legend>
                                 <table style="float:left; margin-left: 30px;"><tr><td>Leave Type &nbsp;&nbsp;&nbsp; </td><td><select id="leave_type" style="width: 250px;">
                                 	<option>--Select Type--</option>
-                                    <option>LOP</option>
+                                    <option value="LOP">LOP</option>
                                     
                                 </select></td></tr><table><br/><br/><hr/>
                                <table style="float:left; margin-left: 30px;"><tr><td> Leave On &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td><input type="date" id="leave_on" style="width: 150px;" /></td>

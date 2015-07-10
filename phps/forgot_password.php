@@ -12,7 +12,7 @@ $db_name="leave_management";
 $connect_id=mysql_connect("localhost", "root", "123456")or die("cannot connect"); 
 mysql_select_db("$db_name",$connect_id) or die("NoDatabase");
 
-$get=mysql_query("SELECT * FROM $tb_name WHERE `user_name`='$id'");
+$get=mysql_query("SELECT * FROM $tb_name WHERE `user_name`='$id' AND `mail`='$to'");
 
 if(mysql_num_rows($get)>0){
 	mysql_query("UPDATE $tb_name SET `password`='$password' WHERE `user_name`='$id'");
@@ -52,6 +52,6 @@ if(mysql_num_rows($get)>0){
 	//echo json_encode("A password has been sent to your mail-id");
 }
 
-else echo json_encode("Incorrect Staff ID");
+else echo json_encode("Incorrect Details");
 ?>
 

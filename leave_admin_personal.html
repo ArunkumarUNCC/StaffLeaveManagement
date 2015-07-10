@@ -11,7 +11,7 @@
 
   <script type="text/javascript">
   $(window).load(function(){
-
+	$("#staff_id2").hide();
 	if($.cookie("loged")){
 		var d=new Date();
 		var date=d.getFullYear()+"-"+d.getMonth()+"-"+d.getDate();
@@ -36,8 +36,8 @@
 		type:"POST",
 		dataType:"json",
 		success:function(result){
-			$("#staff_id").html(result[0]);
-			$("#staff_name").html(result[1]);
+			$("#staff_id,#staff_id2").val(result[0]);
+			$("#staff_name").val(result[1]);
 			$("#staff_type").html(result[2]);
 			$("#department").html(result[3]);
 			$("#designation").html(result[4]);
@@ -54,6 +54,19 @@
 	});
 	
 	$("#single_submit").click(function(){
+		if($("#staff_photo").val()!=""){
+			//alert($.cookie("loged"));
+			var temp = $.cookie("loged").split("//")[0];
+			var file = $("#staff_photo").val().split("\\")[2];
+			//alert(file);
+			temp+="//phps/images/photos/"+ file;
+			//alert(temp);
+			$.cookie("loged",temp,{expires:1});
+			
+		}
+	});
+	
+	/*$("#single_submit").click(function(){
 		if($("#staff_pass").val()==""){
 			if($("#staff_mail").val() && $("#staff_contact").val()){
 				$.ajax({
@@ -92,7 +105,7 @@
 			}
 			else $("#staff_pass").val("");
 		}
-	});
+	});*/
 
   });
   
@@ -104,6 +117,7 @@
     }
     return true;
   }
+  
   </script>
   
 <style>
@@ -151,28 +165,50 @@ table tr td{
                                     
                                     <div style="width: 90%; ">
                                     
+                                    <form action="phps/update_personal.php" method="post">
+                                    <input type="text" id="staff_id2" name="staff_id2" />
                                     <fieldset style="margin-top: 20px;width: 90%; background-color:#FFFFFF"><legend style="margin-left: -100px;">Personal Details</legend>
                                     <table style="font-size:16px;">
-                                        <tr><td>Staff Name</td><td><span id="staff_name"></span></td></tr>
-                                        <tr><td>Staff Id</td><td><span id="staff_id"></span></td></tr>
+                                        <tr><td>Admin Name</td><td><input type="text" disabled id="staff_name" name="staff_name" /></td></tr>
+                                        <tr><td>Admin Id</td><td><input type="text" disabled id="staff_id" name="staff_id" /></td></tr>
                                       	<tr><td>Staff Type</td><td><span id="staff_type"></span>
                                         </td></tr>
                                         <tr><td>Designation</td><td><span id="designation"></span></td></tr>
                                         <tr><td>Department</td><td><span id="department"></span></td></tr>
                                         <tr><td>Date of Joining</td><td><span id="doj"></span></td></tr>
-                                        <tr><td>Mail-Id</td><td> <input type="text" id="staff_mail" placeholder="arunb@skcet.ac.in" /></td></tr>
-                                        <tr><td>Staff Contact</td><td> <input type="text" id="staff_contact" onKeyPress="return isNumber(event)" placeholder="7708920081" maxlength="10" /></td></tr>	
+                                        <tr><td>Mail-Id</td><td> <input type="text" id="staff_mail" name="staff_mail" placeholder="arunb@skcet.ac.in" required/></td></tr>
+                                        <tr><td>Admin Contact</td><td> <input type="text" id="staff_contact" name="staff_contact" onKeyPress="return isNumber(event)" placeholder="7708920081" maxlength="10" required /></td></tr>
+                                         <tr><td>Admin Photo</td><td><input type="file" style=" border: 1px solid #CCCCCC" id="staff_photo" name="staff_photo" /></td></tr>	
 									</table>
                                     </fieldset>
                                     
                                     <fieldset style="margin-top: 20px;width: 90%; background-color:#FFFFFF"><legend style="margin-left: -100px;">Login Details</legend>
                                     <table style="font-size:16px;">
                                         <tr><td>User Name</td><td><input type="text" id="staff_user" disabled/></td></tr>
-                                        <tr><td>Password</td><td><input type="text" id="staff_pass" /></td></tr>
+                                        <tr><td>Password</td><td><input type="text" id="staff_pass" name="staff_pass" /></td></tr>
                                     </table>
                                     </fieldset>
                                     <center><button id="single_submit" style="margin-top: 10px;">Submit</button></center>
-
+									</form>
+                                    
+                                    <script src="js/malsup.js"></script>
+									<script>
+                                        (function() {
+                    
+                     
+                                            $('form').ajaxForm({
+                        
+                                                success: function(data) {
+													alert(data);
+													
+													location.reload();
+                                                    
+                                                }
+												
+												
+                                            });
+                                        })();
+                                    </script>
                                    </div>
                                </div>
  
