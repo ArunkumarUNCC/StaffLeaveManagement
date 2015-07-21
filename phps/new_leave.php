@@ -17,29 +17,36 @@
 	
 	$get=mysql_query("SELECT `leave_name`,`leave_count` FROM $tb_name WHERE `type`='$type'");
 	
-	while($row=mysql_fetch_array($get)){
-		$names=$row[0];
-		$count=$row[1];
-	}
-	
-	if($names==""){
-		mysql_query("UPDATE $tb_name SET `leave_name`='$name',`leave_count`='0' WHERE `type`='$type'");
+	if(mysql_num_rows($get)==0){
+		mysql_query("INSERT INTO $tb_name(`type`,`leave_name`,`leave_count`) VALUES('$type','$name','0')");
 		echo json_encode("Updation Success");	
 	}
 	
 	else{
-		$leave_names=explode(",",$names);
-		$leave_count=explode(",",$count);
+		while($row=mysql_fetch_array($get)){
+			$names=$row[0];
+			$count=$row[1];
+		}
 		
-		array_push($leave_names,$name);
-		array_push($leave_count,'0');
+		if($names==""){
+			mysql_query("UPDATE $tb_name SET `leave_name`='$name',`leave_count`='0' WHERE `type`='$type'");
+			echo json_encode("Updation Success");	
+		}
 		
-		$names=implode(",",$leave_names);
-		$count=implode(",",$leave_count);
-		
-		mysql_query("UPDATE $tb_name SET `leave_name`='$names',`leave_count`='$count' WHERE `type`='$type'");
-		
-		
-		echo json_encode("Updation Success");
+		else{
+			$leave_names=explode(",",$names);
+			$leave_count=explode(",",$count);
+			
+			array_push($leave_names,$name);
+			array_push($leave_count,'0');
+			
+			$names=implode(",",$leave_names);
+			$count=implode(",",$leave_count);
+			
+			mysql_query("UPDATE $tb_name SET `leave_name`='$names',`leave_count`='$count' WHERE `type`='$type'");
+			
+			
+			echo json_encode("Updation Success");
+		}
 	}
 ?>

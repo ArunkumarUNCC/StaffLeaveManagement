@@ -81,7 +81,7 @@
 	});
 	
 	$("#update_leave").click(function(){
-		if($("#from_date").val()!="" && $("#from_date").val()!=""){
+		if($("#from_date").val()!="" && $("#to_date").val()!="" && $("#from_date").val()!=$("#to_date").val()){
 			var names=[],counts=[];
 			for(var i=1;i<$("#edit_table tr").length-1;i++){
 				names.push($("."+i).attr("leave_name"));

@@ -3,15 +3,17 @@ $db_name="leave_management";
 $connect_id=mysql_connect("localhost", "root", "123456")or die("cannot connect"); 
 mysql_select_db("$db_name",$connect_id) or die("NoDatabase");
 
-$depts=array();
+$type = $_POST["staff_type"];
+$designations=array();
 	
-$get=mysql_query("SELECT * FROM `designations`");
+$get=mysql_query("SELECT `name` FROM `designations` WHERE `staff_type`='$type'");
 
 while($row=mysql_fetch_array($get)){
-	array_push($depts,$row[0]);
+	$designations = explode(",",$row[0]);
 }
 
-echo json_encode($depts);
+
+echo json_encode($designations);
 
 
 ?>

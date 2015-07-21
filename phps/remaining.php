@@ -51,5 +51,5 @@
 		}
 	}
 	echo json_encode(array($leave_names,$count,$lop,$staff_name,$staff_dept,$staff_desig,$date));
-	
+	//echo json_encode(sizeof($get_count));
 ?>

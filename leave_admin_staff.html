@@ -6,6 +6,9 @@
   <meta name="description" content="Description of your site goes here">
   <meta name="keywords" content="keyword1, keyword2, keyword3">
   <link href="css/style.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" type="text/css" href="css/accordian.css">
+  
+  <script type="text/javascript" src="js/accordian.js"></script>
   <script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
   <script type="text/javascript" src="js/jquery.cookie.js"></script>
   
@@ -34,35 +37,35 @@
 	$("#delete").click(function(){
 		$("#add_div,#new_dept_div,#new_desig_div,#add_admin_div").hide();
 		$("#delete_div").show();
-		$(this).css("border-bottom","2px solid #1da5ee");
+		$(this).css("border-bottom","3px solid #1da5ee");
 		$("#add,#dept,#desig,#add_admin").css("border-bottom","");
 	});
 	
 	$("#dept").click(function(){
 		$("#add_div,#delete_div,#new_desig_div,#add_admin_div").hide();
 		$("#new_dept_div").show();
-		$(this).css("border-bottom","2px solid #1da5ee");
+		$(this).css("border-bottom","3px solid #1da5ee");
 		$("#add,#delete,#desig,#add_admin").css("border-bottom","");
 	});
 	
 	$("#desig").click(function(){
 		$("#add_div,#delete_div,#new_dept_div,#add_admin_div").hide();
 		$("#new_desig_div").show();
-		$(this).css("border-bottom","2px solid #1da5ee");
+		$(this).css("border-bottom","3px solid #1da5ee");
 		$("#add,#delete,#dept,#add_admin").css("border-bottom","");
 	});
 	
 	$("#add").click(function(){
 		$("#add_div").show();
 		$("#delete_div,#new_dept_div,#new_desig_div,#add_admin_div").hide();
-		$(this).css("border-bottom","2px solid #1da5ee");
+		$(this).css("border-bottom","3px solid #1da5ee");
 		$("#delete,#dept,#desig,#add_admin").css("border-bottom","");
 	});
 	
 	$("#add_admin").click(function(){
 		$("#add_admin_div").show();
 		$("#delete_div,#new_dept_div,#new_desig_div,#add_div").hide();
-		$(this).css("border-bottom","2px solid #1da5ee");
+		$(this).css("border-bottom","3px solid #1da5ee");
 		$("#delete,#dept,#desig,#add").css("border-bottom","");	
 	});
 	
@@ -188,7 +191,8 @@
 	});
 	
 	$("#staff_contact,#admin_contact").blur(function(){
-		if($(this).length<10)
+	
+		if($(this).val().length<10)
 			$(this).val("");	
 	});
 	
@@ -245,16 +249,16 @@
 	
 	$("#add_desig").click(function(){
 		
-		if($("#new_desig").val()){
+		if($("#new_desig_staff").val()!="--Select Staff Type--" && $("#new_desig").val()){
 			if(confirm("Are you sure to add the Designation:"+$("#new_desig").val())){
 				$.ajax({
 					url:"phps/edit_desig.php",
-					data:{name:$("#new_desig").val(),id:"1"},
+					data:{name:$("#new_desig").val(),staff_type:$("#new_desig_staff").val(),id:"1"},
 					type:"POST",
 					dataType:"json",
 					success:function(result){
 						alert(result);
-						location.reload();
+					    location.reload();
 					},
 					error:function(result){
 						alert("Problem in Connection");
@@ -262,7 +266,7 @@
 				});
 			}
 		}
-		else alert("Please Enter a Designation Name");
+		else alert("Please provide both Staff Type and Designation Name");
 	});
 	
 	$("#delete_desig").click(function(){
@@ -271,7 +275,7 @@
 			if(confirm("Are you sure to delete the Designation:"+$("#del_desig_name").val())){
 				$.ajax({
 					url:"phps/edit_desig.php",
-					data:{name:$("#del_desig_name").val(),id:"2"},
+					data:{name:$("#del_desig_name").val(),id:"2",staff_type:$("#del_desig_staff").val()},
 					type:"POST",
 					dataType:"json",
 					success:function(result){
@@ -318,6 +322,7 @@
 						type:"POST",
 						dataType:"json",
 						success:function(result){
+							alert(result);
 							if(result[0].length>0){
 							
 								$("#delete_staff_details,#edit_staff_details,#submit_table").show();
@@ -404,6 +409,54 @@
 		}
 	});
 	
+	$("#del_desig_staff").change(function(){
+		$("#del_desig_name").html("<option>--Select Any Designation--</option>");
+		if($(this).val()!="--Select Staff Type--"){
+			$.ajax({
+				url:"phps/get_desig.php",
+				data:{staff_type:$(this).val()},
+				type:"POST",
+				dataType:"json",
+				success:function(result){
+					for(var i=0;i<result.length;i++){
+						$("#del_desig_name").append("<option>"+result[i]+"</option>");
+					}
+				},
+				error:function(result){
+					alert("Problem in Connection");
+				}
+			});	
+		}
+		
+	});
+	
+	$("#staff_type").change(function(){
+		$("#staff_desig").html("<option>--Select Any Designation--</option>");
+		if($(this).val()!="--Select Staff Type--"){
+			$.ajax({
+				url:"phps/get_desig.php",
+				data:{staff_type:$(this).val()},
+				type:"POST",
+				dataType:"json",
+				success:function(result){
+					for(var i=0;i<result.length;i++){
+						$("#staff_desig").append("<option>"+result[i]+"</option>");
+					}
+				},
+				error:function(result){
+					alert("Problem in Connection");
+				}
+			});	
+		}
+		
+	});
+	
+	$("#submit_csv").click(function(){
+		
+			$("#csv_form").submit();	
+		
+	});
+	
   });
   
   function isNumber(evt) {
@@ -450,106 +503,157 @@
                     	
 						<div class="content-left" style="min-height:400px; margin-top: 20px;">
                         
-                        	<span style="margin-left: 20px; margin-right: 20px; font-size:16px"><strong><a id="add" style="border-bottom: 2px solid #1da5ee;">Add Staff</a></strong></span>|<span style="margin-left: 20px; margin-right: 20px; font-size:16px"><strong><a id="add_admin">Add Admin</a></strong></span>|<span style="margin-left: 20px; margin-right: 20px; font-size:16px;"><strong><a id="delete">Edit Staff</a></strong></span>|<span style="margin-left: 20px; margin-right: 20px; font-size:16px;"><strong><a id="dept">Department Entry</a></strong></span>|<span style="margin-left: 20px; margin-right: 20px; font-size:16px;"><strong><a id="desig">Designation Entry</a></strong></span>
-                        	<center>
-                            	<div id="add_div" style="margin-top: 10px;">
-                                    <h1>Add Staff Entry</h1>
-                                    
-                                    <div style="width: 80%;">
-                                    
-                                   
-                                    <fieldset style="margin-top: 20px;width: 80%; background-color:#FFFFFF"><legend style="margin-left: -100px;">Personal Details</legend>
-                                    
-                                    <table style=" ">
-                                        <tr><td>Staff Name</td><td> <input type="text" style="margin-left: 20px;" id="staff_name" name="staff_name" placeholder="Arunkumar Bagavathi" /></td></tr>
-                                        <tr><td>Staff Id</td><td> <input type="text" style="margin-left: 20px;" id="staff_id" name="staff_id" placeholder="CS14200" /></td></tr>
-                                      	<tr><td>Staff Type</td><td> <select style="margin-left: 20px;width:153px;" id="staff_type" name="staff_type">
-                                            <option>--Select Type--</option>
-                                            <option>Principal</option>
-                                            <option>HOD</option>
-                                            <option>Teaching Staff</option>
-                                            <option>Non teaching Staff</option></select>
-                                        </td></tr>
-                                        <tr><td>Designation</td><td> <select id="staff_desig" name="staff_desig" style="margin-left: 20px;">
-                                            <option>--Select Any Designation--</option>
-                                            <script>
-												$.ajax({
-													url:"phps/get_desig.php",
-													data:{},
-													type:"POST",
-													dataType:"json",
-													success:function(result){
-														for(var i=0;i<result.length;i++){
-															$("#staff_desig").append("<option>"+result[i]+"</option>");
-														}
-													},
-													error:function(result){
-														alert("Problem in Connection");
-													}
-												});
-											</script>
-                                            </select></td></tr>
-                                        <tr><td>Department</td><td> <select id="staff_dept" name="staff_dept" style="margin-left:20px;">
-                                            <option>--Select Any Department--</option>
-                                            <script>
-												$.ajax({
-													url:"phps/get_dept.php",
-													data:{},
-													type:"POST",
-													dataType:"json",
-													success:function(result){
-														for(var i=0;i<result.length;i++){
-															$("#staff_dept").append("<option>"+result[i]+"</option>");
-														}
-													},
-													error:function(result){
-														alert("Problem in Connection");
-													}
-												});
-											</script>
-                                            </select></td></tr>
-                                        <tr><td>Date of Joining</td><td> <input type="date" style="margin-left: 20px;" id="staff_doj" name="staff_doj" /></td></tr>
-                                        <tr><td>Mail-Id</td><td> <input type="text" style="margin-left: 20px;" id="staff_mail" name="staff_mail" placeholder="arunb@skcet.ac.in" /></td></tr>
-                                        <tr><td>Staff Contact</td><td> <input type="text" style="margin-left: 20px;" id="staff_contact" name="staff_contact" onKeyPress="return isNumber(event)" placeholder="7708920081" maxlength="10" /></td></tr>
+                        	<span style="margin-left: 20px; margin-right: 20px; font-size:16px"><strong><a id="add" style="border-bottom: 3px solid #1da5ee;">Add Staff</a></strong></span>|<span style="margin-left: 20px; margin-right: 20px; font-size:16px"><strong><a id="add_admin">Add Admin</a></strong></span>|<span style="margin-left: 20px; margin-right: 20px; font-size:16px;"><strong><a id="delete">Edit Staff</a></strong></span>|<span style="margin-left: 20px; margin-right: 20px; font-size:16px;"><strong><a id="dept">Department Entry</a></strong></span>|<span style="margin-left: 20px; margin-right: 20px; font-size:16px;"><strong><a id="desig">Designation Entry</a></strong></span>
+                        	
+                            	<div id="add_div" style="margin-top: 20px;">
+                                	<ul class="acc" id="acc">
+										<li>
+											<h3>Import CSV</h3>
+                                            <div class="acc-section">
+												<div class="acc-content">
+                                                	<fieldset style="margin-top: 20px;width: 92%; background-color:#FFFFFF"><legend style="margin-left: -100px;">Personal Details</legend>
+                                    					<center>
+                                                        	
+                                                        	<table style="width: 70%;">
+                                                            	<tr><td style="width: 50%;">Upload .csv file</td><td>
+                                                                	<form action="phps/upload_csv.php" id="csv_form" method="post">
+                                                                    	<input type="file" name="csv" style="margin-left: 20px; border:1px;" />
+                                                                	</form>
+                                                                </td></tr>
+                                                                <tr><td colspan="2"><center><button id="submit_csv" style="margin-top: 30px;">Submit</button></center></td></tr>
+                                                                
+                                                                <script src="js/malsup.js"></script>
+																<script>
+																	(function() {
+												
+												 
+																		$('form').ajaxForm({
+													
+																			success: function(data) {
+																				alert(data);
+																				
+																			}
+																			
+																			
+																		});
+																	})();
+																</script>
+                                                            </table>
+                                                            
+                                                        </center>
+                                                	</fieldset>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <li>
+											<h3>Add New Staff</h3>
+                                            <div class="acc-section">
+												<div class="acc-content">
+                                                	<ul class="acc" id="nested">
+                                                    
+                                                	
+                                    					<li>
+                                    						<h3>Personal Details</h3>
+                                   							<div class="acc-section">
+																<div class="acc-content">
+                                    								<fieldset style="margin-top: 20px;width: 92%; background-color:#FFFFFF"><legend style="margin-left: -100px;">Personal Details</legend>
+                                    								<center>
+                                    									<table style=" ">
+                                        									<tr><td>Staff Name</td><td> <input type="text" style="margin-left: 20px;" id="staff_name" name="staff_name" placeholder="Arunkumar Bagavathi" /></td></tr>
+                                        									<tr><td>Staff Id</td><td> <input type="text" style="margin-left: 20px;" id="staff_id" name="staff_id" placeholder="CS14200" /></td></tr>
+                                      										<tr><td>Staff Type</td><td>
+                                                                            	<select style="margin-left: 20px" id="staff_type" name="staff_type">
+                                            										<option>--Select Type--</option>
+                                            										<option>Principal</option>
+                                            										<option>HOD</option>
+                                                                                    <option>Teaching Staff</option>
+                                                                                    <option>Non teaching Staff</option></select>
+                                        									</td></tr>
+                                        									<tr><td>Designation</td><td>
+                                                                            	<select id="staff_desig" name="staff_desig" style="margin-left: 20px;">
+                                            										<option>--Select Any Designation--</option>
+                                            
+                                            									</select>
+                                                                            </td></tr>
+                                        									<tr><td>Department</td><td>
+                                                                            	<select id="staff_dept" name="staff_dept" style="margin-left:20px;">
+                                            										<option>--Select Any Department--</option>
+																					<script>
+                                                                                        $.ajax({
+                                                                                            url:"phps/get_dept.php",
+                                                                                            data:{},
+                                                                                            type:"POST",
+                                                                                            dataType:"json",
+                                                                                            success:function(result){
+                                                                                                for(var i=0;i<result.length;i++){
+                                                                                                    $("#staff_dept").append("<option>"+result[i]+"</option>");
+                                                                                                }
+                                                                                            },
+                                                                                            error:function(result){
+                                                                                                alert("Problem in Connection");
+                                                                                            }
+                                                                                        });
+                                                                                    </script>
+                                            									</select>
+                                                                            </td></tr>
+                                        									<tr><td>Date of Joining</td><td><input type="date" style="margin-left: 20px;" id="staff_doj" name="staff_doj" /></td></tr>
+                                        									<tr><td>Mail-Id</td><td> <input type="text" style="margin-left: 20px;" id="staff_mail" name="staff_mail" placeholder="arunb@skcet.ac.in" /></td></tr>
+                                        									<tr><td>Staff Contact</td><td> <input type="text" style="margin-left: 20px;" id="staff_contact" name="staff_contact" onKeyPress="return isNumber(event)" placeholder="7708920081" maxlength="10" /></td></tr>
                                         
-                                        <!--<tr><td>Staff Photo</td><td><input type="file" style="margin-left: 20px; border: 1px solid #CCCCCC" id="staff_photo" name="staff_photo" /></td></tr>-->	
-									</table>
+                                        
+																		</table>
+                                    								</center>
+                                    							</fieldset>
+                                                            </div>
+                                                        </div>
+                                					</li>
+                                                    <li>
+                                                        <h3>Leave Details</h3>
+                                                        <div class="acc-section">
+	                                                        <div class="acc-content">   
+    		                                                     <fieldset style="margin-top: 20px;width: 92%; background-color:#FFFFFF"><legend style="margin-left: -100px;">Leave Details</legend>
+             		                                            <center>
+                                                        			<table id="edit_table">
+                                                            
+                                                        			</table>
+                                                        		</center>
+                                                        		</fieldset>
+                                                        	</div>
+                                                    	</div>
+                                                    </li>
+                                
+                                                    <li>
+                                                        <h3>Account Details</h3>
+                                                        <div class="acc-section">
+	                                                        <div class="acc-content">
+    		                                                    <fieldset style="margin-top: 20px;width: 92%; background-color:#FFFFFF"><legend style="margin-left: -100px;">Login Details</legend>
+            			                                            <center>
+                                                        				<table>
+                                                            				<tr><td colspan="2">
+                                                                				<table>
+                                                                    				<tr><td>User Name</td><td><input type="text" id="staff_user" namne="staff_user" disabled/></td></tr>
+                                                                    				<tr><td>Password</td><td><input type="text" id="staff_pass" name="staff_pass" disabled/></td></tr>
+                                                                				</table>
+                                                            				</td></tr>
+                                                            				<tr><td colspan="2"></td></tr>
+                                                        				</table>
+                                                        			</center>
+                                                        		</fieldset>
+                                                        	</div>
+                                                    	</div>
+                                                    </li>                                  
+                                   				
+                                                </ul>
+                                                <center><button id="single_submit" style="margin-top: 10px;">Submit</button></center>
+                                   			</div>
+                                        </div>
+                                     </li>
+                               		</ul>
+                                    <!--<h1>Add Staff Entry</h1>
                                     
-                                    </fieldset>
-                                    
-                                     <fieldset style="margin-top: 20px;width: 80%; background-color:#FFFFFF"><legend style="margin-left: -100px;">Leave Details</legend>
-                                    <table id="edit_table">
-                                    	
-                                    </table>
-                                    </fieldset>
-                                    
-                                    <fieldset style="margin-top: 20px;width: 80%; background-color:#FFFFFF"><legend style="margin-left: -100px;">Login Details</legend>
-                                    <table>
-                                        <tr><td colspan="2">
-                                            <table>
-                                                <tr><td>User Name</td><td><input type="text" id="staff_user" namne="staff_user" disabled/></td></tr>
-                                                <tr><td>Password</td><td><input type="text" id="staff_pass" name="staff_pass" disabled/></td></tr>
-                                            </table>
-                                        </fieldset></td></tr>
-                                        <tr><td colspan="2"></td></tr>
-                                    </table>
-                                    </fieldset>
-                                    <center><button id="single_submit" style="margin-top: 10px;">Submit</button></center>
-                                    
-                                   <!-- <br/>
-                                    <span style="width: 100%; margin-top: 10px;">(OR)</span>
-                                    
-                                    <fieldset style="margin-top: 10px;width: 80%;"><legend style="margin-left: -100px;">Staff Entry As Excel Sheet</legend>
-                                    <form method="post" action="upload_csv.php">
-                                    <table style=" ">
-                                        <tr><td>Excel File</td><td><input type="file" name="file" style="margin-left:30px;width: 200px;border:1px solid black" /></td></tr>
-                                         <tr><td colspan="2"><center><input type="submit" name="excel_submit" value="Submit" style="margin-top: 10px;" /></center></td></tr>
-                                    </table>
-                                    </form>
-                                    </fieldset>-->
-                                   </div>
+                                    >-->
                                </div>
-                               
+                               <center>
                                <div id="delete_div" style="width: 80%; margin-top: 10px;">
                                		<h1>Edit Staff Entry</h1>
                                 
@@ -622,6 +726,13 @@
                                 	<h1>Edit Designation Entries</h1>
                                 	<fieldset style="margin-top: 20px;width: 80%;"><legend style="margin-left: -100px;">Add Designation</legend>
                                     	<table style=" ">
+                                        	<tr><td>Staff Type</td><td><select id="new_desig_staff" style="margin-left:30px;">
+                                            								<option>--Select Staff Type--</option>
+                                                                            <option>Principal</option>
+                                                                            <option>HOD</option>
+                                                                            <option>Teaching Staff</option>
+                                                                            <option>Non teaching Staff</option>
+                                            							</select></td></tr>
                                 			<tr><td>New Designation Name</td><td><input type="text" placeholder="(eg)Assistant Professor" id="new_desig" style="margin-left:30px;" /></td><td><button id="add_desig" style="margin-left: 20px; margin-top: 5px;" >OK</button></td></tr>
                                     
                                 		</table>
@@ -629,23 +740,17 @@
                                     
                                     <fieldset style="margin-top: 20px;width: 80%;"><legend style="margin-left: -100px;">Delete Designation</legend>
                                     	<table style=" ">
+                                        	<tr><td>Staff Type</td><td><select id="del_desig_staff" style="margin-left:30px;">
+                                            								<option>--Select Staff Type--</option>
+                                                                            <option>Principal</option>
+                                                                            <option>HOD</option>
+                                                                            <option>Teaching Staff</option>
+                                                                            <option>Non teaching Staff</option>
+                                            							</select></td></tr>
                                 			<tr><td>Select Designation Name</td><td><select id="del_desig_name" style="margin-left:30px;">
                                             <option>--Select Any Designation--</option>
                                             <script>
-												$.ajax({
-													url:"phps/get_desig.php",
-													data:{},
-													type:"POST",
-													dataType:"json",
-													success:function(result){
-														for(var i=0;i<result.length;i++){
-															$("#del_desig_name").append("<option>"+result[i]+"</option>");
-														}
-													},
-													error:function(result){
-														alert("Problem in Connection");
-													}
-												});
+												
 											</script>
                                             </select>
                                             </td><td><button id="delete_desig" style="margin-left: 20px; margin-top: 5px;">OK</button></td></tr>
@@ -724,6 +829,16 @@
 			</div>
 		</div>
 	</div>
+<script type="text/javascript">
+
 	
+var parentAccordion=new TINY.accordion.slider("parentAccordion");
+parentAccordion.init("acc","h3",0,0);
+
+
+var nestedAccordion=new TINY.accordion.slider("nestedAccordion");
+nestedAccordion.init("nested","h3",1,-1,"acc-selected");
+
+</script>	
 </body>
 </html>
